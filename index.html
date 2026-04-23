@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ぽこあぽこ 🥚</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FFF8F0;
+    --peach: #FFB347;
+    --coral: #FF7B6B;
+    --mint: #5DDBB5;
+    --sky: #7BC8F0;
+    --lavender: #C8AAFF;
+    --pink: #FFB3D1;
+    --dark: #3A2845;
+    --mid: #7A6585;
+    --light: #F5EDE8;
+    --white: #FFFFFF;
+    --shadow-soft: 0 8px 32px rgba(58,40,69,0.10);
+    --shadow-card: 0 4px 20px rgba(58,40,69,0.08);
+    --radius-xl: 28px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== BACKGROUND ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,179,71,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(93,219,181,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 30%, rgba(200,170,255,0.08) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== HEADER ===== */
+  .app-header {
+    background: linear-gradient(135deg, #FF7B6B 0%, #FFB347 60%, #5DDBB5 100%);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(255,123,107,0.25);
+  }
+  .app-logo {
+    font-size: 20px;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    letter-spacing: -0.02em;
+  }
+  .app-logo span { font-size: 13px; font-weight: 500; opacity: 0.85; display: block; letter-spacing: 0; }
+  .week-info {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ===== MAIN ===== */
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== CHARACTER CARD ===== */
+  .character-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 28px 24px 24px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255,179,71,0.15);
+  }
+  .character-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(255,179,71,0.12), transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* キャラクター表示エリア */
+  .character-display {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+  .character-svg {
+    width: 100%;
+    height: 100%;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  .character-glow {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 20px;
+    background: radial-gradient(ellipse, rgba(58,40,69,0.12), transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* ひとこと */
+  .character-speech {
+    background: var(--light);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--dark);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .character-speech::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-bottom-color: var(--light);
+    border-top: none;
+  }
+  .character-name {
+    font-size: 12px;
+    color: var(--mid);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* スコアバー */
+  .score-section { margin-top: 8px; }
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .score-label { font-size: 12px; color: var(--mid); font-weight: 700; }
+  .score-value { font-size: 18px; font-weight: 900; color: var(--dark); }
+  .score-value span { font-size: 12px; font-weight: 500; color: var(--mid); }
+  .progress-bar {
+    height: 12px;
+    background: var(--light);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--coral), var(--peach));
+    border-radius: 20px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 4px; right: 4px;
+    height: 4px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 10px;
+  }
+  .stage-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--mid);
+  }
+
+  /* ===== RECORD BUTTON ===== */
+  .record-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 18px 24px;
+    font-size: 16px;
+    font-weight: 900;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,123,107,0.35);
+    transition: all 0.2s;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+  }
+  .record-btn:hover { transform: scale(1.02); box-shadow: 0 8px 28px rgba(255,123,107,0.4); }
+  .record-btn:active { transform: scale(0.98); }
+  .record-btn-icon { font-size: 20px; margin-right: 8px; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
+    border: 1.5px solid rgba(58,40,69,0.06);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mid);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--light);
+  }
+
+  /* ===== LOGS ===== */
+  .log-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--light);
+    align-items: flex-start;
+  }
+  .log-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .log-animal { font-size: 24px; flex-shrink: 0; }
+  .log-content { flex: 1; }
+  .log-text { font-size: 13px; line-height: 1.6; color: var(--dark); margin-bottom: 4px; }
+  .log-meta { font-size: 11px; color: var(--mid); display: flex; gap: 8px; align-items: center; }
+  .log-pt {
+    background: linear-gradient(135deg, var(--coral), var(--peach));
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .log-tools {
+    background: var(--light);
+    color: var(--mid);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .no-logs {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--mid);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .no-logs .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(58,40,69,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: 28px 24px 40px;
+    width: 100%;
+    max-width: 480px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-overlay.active .modal {
+    transform: translateY(0);
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--light);
+    border-radius: 10px;
+    margin: 0 auto 20px;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* フォーム */
+  label { font-size: 13px; font-weight: 700; color: var(--mid); display: block; margin-bottom: 6px; }
+  textarea {
+    width: 100%;
+    background: var(--light);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    font-size: 14px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    color: var(--dark);
+    resize: none;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--coral); background: white; }
+  textarea::placeholder { color: var(--mid); opacity: 0.7; }
+
+  .tool-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; margin-top: 8px; }
+  .tool-chip {
+    background: var(--light);
+    color: var(--mid);
+    border: 2px solid transparent;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tool-chip.selected {
+    background: var(--dark);
+    color: white;
+    border-color: var(--dark);
+  }
+  .tool-chip:hover { transform: scale(1.05); }
+
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--coral), var(--peach));
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 900;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,123,107,0.3);
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+  .submit-btn:hover { transform: scale(1.02); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ===== キャラ選択モーダル ===== */
+  .animal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .animal-option {
+    background: var(--light);
+    border: 3px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .animal-option:hover { transform: scale(1.03); }
+  .animal-option.selected {
+    border-color: var(--coral);
+    background: rgba(255,123,107,0.08);
+  }
+  .animal-option .a-emoji { font-size: 40px; display: block; margin-bottom: 8px; }
+  .animal-option .a-name { font-size: 13px; font-weight: 800; color: var(--dark); }
+  .animal-option .a-desc { font-size: 11px; color: var(--mid); margin-top: 4px; line-height: 1.4; }
+
+  /* ===== AIコメントモーダル ===== */
+  .comment-card {
+    background: linear-gradient(135deg, rgba(255,179,71,0.1), rgba(93,219,181,0.1));
+    border-radius: var(--radius-md);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .comment-char { font-size: 48px; margin-bottom: 8px; }
+  .comment-text { font-size: 15px; line-height: 1.7; color: var(--dark); font-weight: 500; }
+  .comment-pt {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--coral), var(--peach));
+    color: white;
+    font-size: 16px;
+    font-weight: 900;
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-top: 12px;
+  }
+
+  /* ===== 成長演出モーダル ===== */
+  .stage-up-card {
+    text-align: center;
+    padding: 12px 0;
+  }
+  .stage-up-emoji {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 12px;
+    animation: stageUpPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes stageUpPop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .stage-up-sparkle {
+    font-size: 24px;
+    animation: sparkle 1s ease-in-out infinite;
+  }
+  @keyframes sparkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .stage-up-title { font-size: 22px; font-weight: 900; color: var(--dark); margin: 12px 0 8px; }
+  .stage-up-msg { font-size: 14px; color: var(--mid); line-height: 1.7; }
+
+  /* ===== フローティングポイント ===== */
+  .floating-pt {
+    position: fixed;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--coral);
+    pointer-events: none;
+    z-index: 300;
+    animation: floatUp 1.5s ease-out forwards;
+    text-shadow: 0 2px 8px rgba(255,123,107,0.3);
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(1.2); }
+  }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid var(--light);
+    display: flex;
+    padding: 8px 0 16px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(58,40,69,0.08);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 6px 0;
+    transition: all 0.2s;
+  }
+  .nav-item:hover { transform: translateY(-2px); }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; font-weight: 700; color: var(--mid); }
+  .nav-item.active .nav-label { color: var(--coral); }
+
+  /* ===== PAGE VIEWS ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--dark);
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 400;
+    opacity: 0;
+    transition: all 0.3s;
+    white-space: nowrap;
+    box-shadow: var(--shadow-soft);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== SECTION ===== */
+  .section-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--dark);
+    margin: 20px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--light), transparent);
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header class="app-header">
+  <div class="app-logo">
+    ぽこあぽこ 🥚
+    <span>poco a poco</span>
+  </div>
+  <div class="week-info" id="weekInfo">Week 1</div>
+</header>
+
+<!-- メインコンテンツ -->
+<main>
+
+  <!-- ホームページ -->
+  <div class="page active" id="page-home">
+
+    <!-- キャラカード -->
+    <div class="character-card">
+      <div class="character-display">
+        <div class="character-svg" id="characterDisplay"></div>
+        <div class="character-glow"></div>
+      </div>
+      <div class="character-name" id="characterName">たまご</div>
+      <div class="character-speech" id="dailyMessage">読み込み中...</div>
+      <div class="score-section">
+        <div class="score-header">
+          <span class="score-label">今週のスコア</span>
+          <span class="score-value"><span id="currentScore">0</span> <span>pt</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="stage-label">
+          <span id="stageLabel">Stage 0: たまご</span>
+          <span id="nextStageLabel">次のステージまで 100pt</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 記録ボタン -->
+    <button class="record-btn" onclick="openRecordModal()">
+      <span class="record-btn-icon">✏️</span>今日できたことを記録する
+    </button>
+
+    <!-- 今週の記録 -->
+    <p class="section-title">📝 今週の記録</p>
+    <div class="card">
+      <div id="logsList">
+        <div class="no-logs">
+          <span class="emoji">🌿</span>
+          今日はどんなことがあった？<br>教えてね
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-home -->
+
+</main>
+
+<!-- ボトムナビ -->
+<nav class="bottom-nav">
+  <div class="nav-item active" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">ホーム</span>
+  </div>
+</nav>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== 記録入力モーダル ===== -->
+<div class="modal-overlay" id="recordModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ 今日できたことを記録</div>
+    <label>どんなことがあった？（なんでもOK）</label>
+    <textarea id="recordText" rows="4" placeholder="AIを使ってみた？早起きできた？なんでも書いてね🌿" maxlength="500"></textarea>
+    <div style="margin-top:16px">
+      <label>使ったAIツール（任意・複数OK）</label>
+      <div class="tool-chips" id="toolChips">
+        <div class="tool-chip" onclick="toggleTool(this, 'ChatGPT')">ChatGPT</div>
+        <div class="tool-chip" onclick="toggleTool(this, 'Claude')">Claude</div>
+        <div class="tool-chip" onclick="toggleTool(this, 'Gemini')">Gemini</div>
+        <div class="tool-chip" onclick="toggleTool(this, 'Copilot')">Copilot</div>
+        <div class="tool-chip" onclick="toggleTool(this, 'その他')">その他</div>
+      </div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitRecord()">キャラに届ける 🐾</button>
+    <button onclick="closeModal('recordModal')" style="width:100%;background:none;border:none;color:var(--mid);font-size:13px;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;padding:12px;cursor:pointer;margin-top:4px">とじる</button>
+  </div>
+</div>
+
+<!-- ===== AIコメントモーダル ===== -->
+<div class="modal-overlay" id="commentModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="comment-card">
+      <div class="comment-char" id="commentChar">🥚</div>
+      <div class="comment-text" id="commentText"></div>
+      <div class="comment-pt" id="commentPt">+0pt</div>
+    </div>
+    <button class="submit-btn" onclick="closeModal('commentModal')">やったー！✨</button>
+  </div>
+</div>
+
+<!-- ===== 成長演出モーダル ===== -->
+<div class="modal-overlay" id="stageUpModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="stage-up-card">
+      <span class="stage-up-sparkle">✨ ✨ ✨</span>
+      <div class="stage-up-emoji" id="stageUpEmoji">🐣</div>
+      <div class="stage-up-title" id="stageUpTitle">新しい姿になったよ！</div>
+      <div class="stage-up-msg" id="stageUpMsg"></div>
+    </div>
+    <button class="submit-btn" onclick="closeModal('stageUpModal')" style="margin-top:20px">わあ！うれしい！🌟</button>
+  </div>
+</div>
+
+<!-- ===== キャラ選択モーダル ===== -->
+<div class="modal-overlay active" id="animalModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🐾 どの子にする？</div>
+    <div class="animal-grid">
+      <div class="animal-option" onclick="selectAnimal('chick', this)">
+        <span class="a-emoji">🐣</span>
+        <div class="a-name">ひよこ</div>
+        <div class="a-desc">元気いっぱい！<br>ポジティブな子</div>
+      </div>
+      <div class="animal-option" onclick="selectAnimal('cat', this)">
+        <span class="a-emoji">🐱</span>
+        <div class="a-name">ねこ</div>
+        <div class="a-desc">マイペースで<br>ちょっとツンデレ</div>
+      </div>
+      <div class="animal-option" onclick="selectAnimal('bear', this)">
+        <span class="a-emoji">🐻</span>
+        <div class="a-name">くま</div>
+        <div class="a-desc">どっしり安心感<br>温かい子</div>
+      </div>
+      <div class="animal-option" onclick="selectAnimal('rabbit', this)">
+        <span class="a-emoji">🐰</span>
+        <div class="a-name">うさぎ</div>
+        <div class="a-desc">好奇心旺盛<br>わくわく大好き</div>
+      </div>
+    </div>
+    <button class="submit-btn" id="animalConfirmBtn" onclick="confirmAnimal()" disabled>この子に決めた！🥚</button>
+  </div>
+</div>
+
+<script>
+// ===== データ =====
+const STAGES = [
+  { name: 'たまご',   emoji: '🥚', minPt: 0,   maxPt: 99  },
+  { name: 'めざめ',   emoji: '🐣', minPt: 100, maxPt: 249 },
+  { name: 'よちよち', emoji: '🐥', minPt: 250, maxPt: 449 },
+  { name: 'かいか',   emoji: '✨', minPt: 450, maxPt: 9999 },
+];
+
+const ANIMAL_EMOJI = {
+  chick: '🐣', cat: '🐱', bear: '🐻', rabbit: '🐰'
+};
+
+const ANIMAL_NAMES = {
+  chick: 'ひよこ', cat: 'ねこ', bear: 'くま', rabbit: 'うさぎ'
+};
+
+// ===== 定型文バンク =====
+const PHRASES = {
+  afterRecord: {
+    chick: [
+      'やった！すごいすごい！🐣',
+      'それってすごく大事なことだよ！',
+      'えらい！ぴよぴよ〜！',
+      '今日もがんばったね！大好き！',
+      'そんなことできるの！？すごすぎる！',
+      'きみのこと、もっと好きになったよ🌟',
+      'ちゃんと届いたよ！うれしいな〜！',
+      'いいね！いいね！最高だよ！🌟',
+      'それ、すごく頑張ったんだね！えらい！',
+      'ぴよ！今日もありがとう！',
+      'できたことがまた増えたね！🌸',
+      'そういう気づきって大事だよね〜！',
+      'きみと一緒だと楽しいな〜！',
+      '記録してくれてありがとう！うれしい！',
+      '毎日少しずつ、ぽこあぽこだね🥚',
+      'どんな小さいことでも大事だよ！',
+      'いいぞいいぞ〜！どんどん行こう！',
+      'ちゃんと自分のこと大切にしてるね🌿',
+      'また聞かせてね！待ってるよ！',
+      '今日もいい一日だったね！',
+    ],
+    cat: [
+      '…ふん。まあ、よくやったにゃ',
+      'それ、わりといいじゃないにゃ🐱',
+      '認めてやるにゃ。今日は合格🐾',
+      '…少し、見直したにゃ',
+      'べ、べつに褒めてるわけじゃないにゃ',
+      'ま、悪くはないにゃ',
+      '…うん。よかったにゃ',
+      'そういうことができるの、知らなかったにゃ',
+      '今日はちゃんとやったにゃ。えらいにゃ',
+      '…次も期待してるにゃ',
+      'ふふん。きみもやるにゃ',
+      '…気が向いたら、また教えるにゃ',
+      'まあ、そういうこともあるにゃ。いいにゃ',
+      '記録したの、えらいにゃ🐾',
+      '…ちゃんと見てたにゃ',
+      'そういうところ、好きにゃ',
+      '…うむ。合格点をあげるにゃ',
+      'ぽこあぽこって、いいにゃ',
+      '…続けてるの、偉いにゃ',
+      '今日も来てくれてよかったにゃ🐱',
+    ],
+    bear: [
+      'うん、よくがんばったね🐻',
+      'それは大事なことだよ。えらいね',
+      'ゆっくりでいい。続けることが一番',
+      '一緒にがんばろうね🍯',
+      'きみのペースで、ぽこあぽこね',
+      'そういう積み重ねが大切なんだよ',
+      'ちゃんと記録してくれてありがとう',
+      'どんな小さいことでも、大事な一歩だよ',
+      '今日も来てくれてよかった🐻',
+      '焦らなくていい。一緒にゆっくりね',
+      'それができたこと、ちゃんと覚えてるよ',
+      'きみのことが、もっと好きになったよ🍯',
+      '今日の記録、宝物にするよ',
+      'どんな日も、ここに来てくれてありがとう',
+      'ぽこあぽこ、少しずつでいいんだよ',
+      '今日もよくやったね。お疲れさま',
+      '続けることって、すごく大事なことだよ',
+      'きみのこと、応援してるよ🐻',
+      '今日の気づき、大切にしてね',
+      'また明日も待ってるよ。ゆっくりね',
+    ],
+    rabbit: [
+      'すごい！もっと聞かせて！🐰',
+      'それって新しい発見だね！わくわく',
+      '今日もチャレンジしたんだね！えらい',
+      'どんどん成長してるね！うれしい🌸',
+      'きみと一緒だとたのしいな〜！',
+      'そういう経験って最高だよね！',
+      'また新しいこと知ったね！すごい！',
+      'わあ！それって面白い！もっと詳しく！🐰',
+      'きみの好奇心、大好きだよ！',
+      '今日の記録、ときめいたよ〜！',
+      'そういう気づきってすごく大事！',
+      'えー！それできたの！？すごすぎる！',
+      'きみのおかげで私も嬉しくなっちゃった🌸',
+      '毎日新しいことがあって楽しいね！',
+      'ぽこあぽこって、わくわくするね！',
+      'また明日もいい発見あるといいね！',
+      'その調子その調子！どんどんいこう！🐰',
+      'きみの「できた」が私のエネルギーだよ！',
+      '今日もありがとう！また来てね！',
+      '一緒にいると楽しいなあ〜！🌸',
+    ],
+  },
+  dailyMessage: {
+    0: ['ゆっくり休んでね。いつでも待ってるよ🌸', '週次振り返りのチャンス！一緒に見返そう'],
+    1: ['新しい週のはじまりだよ！一緒にいこう🌟', '今週もぽこあぽこ、少しずつね🥚', '月曜日！気負わなくていいよ。少しでOK'],
+    2: ['昨日より少しだけ前に進もう🌱', '今日も小さなできたを探してみてね'],
+    3: ['週の真ん中！ここまで来たね✨', '折り返し地点！よくがんばってるよ'],
+    4: ['もうすぐ週末！あと少しだよ', '今日も一つだけでいい。できたを探してみて🌿'],
+    5: ['もうすぐ週末！今週もお疲れさま🎉', '今週できたこと、ちゃんと覚えてるよ', '金曜日！今週もよくがんばったね'],
+    6: ['今日はゆっくりしてね🌸', '週次振り返りのチャンス！一緒に見返そう'],
+  },
+  stageUp: {
+    1: ['わあ！うまれたよ！よろしくね🐣', 'あなたのおかげでうまれられたよ！', 'はじめまして！いっぱいよろしくね！'],
+    2: ['あるけるようになったよ！えへへ🐥', 'こんなに大きくなれた！うれしいな', 'みてみて！あるけるよ！すごいでしょ！'],
+    3: ['わたし、こんなになれたよ！✨ あなたのおかげ！', 'ありがとう！いちばんきれいな姿になれた！', 'こんな姿になれるなんて思ってなかった…ありがとう'],
+  },
+};
+
+function getRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ===== localStorage =====
+function loadData() {
+  const raw = localStorage.getItem('pocoapoco');
+  if (!raw) return null;
+  return JSON.parse(raw);
+}
+
+function saveData(data) {
+  localStorage.setItem('pocoapoco', JSON.stringify(data));
+}
+
+function initData(animalType) {
+  const today = getTodayStr();
+  const weekId = getWeekId();
+  const data = {
+    animalType,
+    weeks: {
+      [weekId]: {
+        score: 0,
+        stage: 0,
+        lastStageUpDate: '',
+        logs: [],
+      }
+    },
+    createdAt: today,
+  };
+  saveData(data);
+  return data;
+}
+
+function getTodayStr() {
+  return new Date().toLocaleDateString('sv-SE');
+}
+
+function getWeekId() {
+  const d = new Date();
+  const startOfYear = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  return `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+function getCurrentWeek(data) {
+  const weekId = getWeekId();
+  if (!data.weeks[weekId]) {
+    data.weeks[weekId] = { score: 0, stage: 0, lastStageUpDate: '', logs: [] };
+    saveData(data);
+  }
+  return data.weeks[weekId];
+}
+
+// ===== ステージ計算 =====
+function getStage(score) {
+  for (let i = STAGES.length - 1; i >= 0; i--) {
+    if (score >= STAGES[i].minPt) return i;
+  }
+  return 0;
+}
+
+function getProgressPct(score, stage) {
+  if (stage >= STAGES.length - 1) return 100;
+  const current = STAGES[stage];
+  const next = STAGES[stage + 1];
+  const range = next.minPt - current.minPt;
+  const progress = score - current.minPt;
+  return Math.min(100, Math.max(0, (progress / range) * 100));
+}
+
+// ===== キャラSVG（絵文字ベース） =====
+function getCharacterHTML(animalType, stage) {
+  const stageEmoji = stage === 0 ? '🥚' :
+                     stage === 1 ? ANIMAL_EMOJI[animalType] :
+                     stage === 2 ? ANIMAL_EMOJI[animalType] :
+                     '✨';
+  const size = stage === 0 ? '120px' : '100px';
+  const bgGradients = {
+    chick:  'radial-gradient(circle at 40% 35%, #FFF9DC, #FFE066)',
+    cat:    'radial-gradient(circle at 40% 35%, #F5E6FF, #DDB8FF)',
+    bear:   'radial-gradient(circle at 40% 35%, #FFE8D6, #FFBA8A)',
+    rabbit: 'radial-gradient(circle at 40% 35%, #FFE6F2, #FFB3D6)',
+  };
+  const bg = bgGradients[animalType] || bgGradients.chick;
+
+  if (stage === 0) {
+    // たまご
+    return `
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="eggGrad" cx="40%" cy="35%">
+            <stop offset="0%" stop-color="#FFF9E0"/>
+            <stop offset="100%" stop-color="#FFE066"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <ellipse cx="80" cy="88" rx="48" ry="58" fill="url(#eggGrad)" filter="url(#glow)"/>
+        <ellipse cx="80" cy="88" rx="48" ry="58" fill="none" stroke="rgba(255,200,0,0.3)" stroke-width="2"/>
+        <ellipse cx="66" cy="74" rx="8" ry="10" fill="rgba(255,255,255,0.5)"/>
+      </svg>`;
+  } else {
+    // キャラ（絵文字ベース）
+    return `
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="80" cy="80" r="62" fill="${bg.includes('radial') ? '#FFF9DC' : '#FFF9DC'}" opacity="0.5"/>
+        <text x="80" y="105" font-size="72" text-anchor="middle" dominant-baseline="middle">${stageEmoji}</text>
+        ${stage === 2 ? '<text x="110" y="50" font-size="20" opacity="0.7">🌟</text>' : ''}
+        ${stage === 3 ? '<text x="110" y="40" font-size="24">✨</text><text x="30" y="45" font-size="18">⭐</text>' : ''}
+      </svg>`;
+  }
+}
+
+// ===== UI更新 =====
+function updateUI() {
+  const data = loadData();
+  if (!data) return;
+
+  const week = getCurrentWeek(data);
+  const score = week.score;
+  const stage = week.stage;
+  const stageInfo = STAGES[stage];
+
+  // キャラ表示
+  document.getElementById('characterDisplay').innerHTML = getCharacterHTML(data.animalType, stage);
+  document.getElementById('characterName').textContent =
+    `${ANIMAL_EMOJI[data.animalType]} ${ANIMAL_NAMES[data.animalType]}（${stageInfo.name}）`;
+
+  // 今日のひとこと
+  const day = new Date().getDay();
+  const phrases = PHRASES.dailyMessage[day];
+  document.getElementById('dailyMessage').textContent = getRandom(phrases);
+
+  // スコアバー
+  document.getElementById('currentScore').textContent = score;
+  const pct = getProgressPct(score, stage);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('stageLabel').textContent = `Stage ${stage}: ${stageInfo.name}`;
+
+  if (stage < STAGES.length - 1) {
+    const nextPt = STAGES[stage + 1].minPt;
+    document.getElementById('nextStageLabel').textContent = `次のステージまで ${Math.max(0, nextPt - score)}pt`;
+  } else {
+    document.getElementById('nextStageLabel').textContent = '最高ステージ達成！✨';
+  }
+
+  // 週表示
+  document.getElementById('weekInfo').textContent = getWeekId().replace('-', ' ');
+
+  // ログ表示
+  renderLogs(week.logs || []);
+}
+
+function renderLogs(logs) {
+  const el = document.getElementById('logsList');
+  if (!logs || logs.length === 0) {
+    el.innerHTML = `<div class="no-logs"><span class="emoji">🌿</span>今日はどんなことがあった？<br>教えてね</div>`;
+    return;
+  }
+  const recent = [...logs].reverse().slice(0, 5);
+  el.innerHTML = recent.map(log => `
+    <div class="log-item">
+      <div class="log-animal">${log.animal || '🥚'}</div>
+      <div class="log-content">
+        <div class="log-text">${log.text}</div>
+        <div class="log-meta">
+          <span class="log-pt">+${log.points}pt</span>
+          ${log.tools && log.tools.length > 0 ? `<span class="log-tools">🤖 ${log.tools.join('・')}</span>` : ''}
+          <span>${log.date || ''}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== キャラ選択 =====
+let selectedAnimal = null;
+
+function selectAnimal(type, el) {
+  selectedAnimal = type;
+  document.querySelectorAll('.animal-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('animalConfirmBtn').disabled = false;
+}
+
+function confirmAnimal() {
+  if (!selectedAnimal) return;
+  const data = initData(selectedAnimal);
+  closeModal('animalModal');
+  updateUI();
+  showToast(`${ANIMAL_NAMES[selectedAnimal]}のたまごが生まれたよ！🥚`);
+}
+
+// ===== 記録モーダル =====
+let selectedTools = [];
+
+function toggleTool(el, tool) {
+  if (selectedTools.includes(tool)) {
+    selectedTools = selectedTools.filter(t => t !== tool);
+    el.classList.remove('selected');
+  } else {
+    selectedTools.push(tool);
+    el.classList.add('selected');
+  }
+}
+
+function openRecordModal() {
+  const data = loadData();
+  if (!data) { showToast('まずキャラを選んでね！'); return; }
+  document.getElementById('recordText').value = '';
+  selectedTools = [];
+  document.querySelectorAll('.tool-chip').forEach(c => c.classList.remove('selected'));
+  openModal('recordModal');
+}
+
+function submitRecord() {
+  const text = document.getElementById('recordText').value.trim();
+  if (!text) { showToast('今日のできたことを書いてね🌿'); return; }
+
+  const data = loadData();
+  const week = getCurrentWeek(data);
+  const today = getTodayStr();
+
+  // ポイント計算
+  const todayLogs = (week.logs || []).filter(l => l.date === today);
+  let points = todayLogs.length === 0 ? 15 : 5; // 1日1回15pt、2件目以降5pt
+  if (selectedTools.length > 0) points += 15;
+  if (selectedTools.length > 0 && !selectedTools.includes('その他')) points += 5;
+
+  // ログ追加
+  const log = {
+    text,
+    tools: [...selectedTools],
+    points,
+    date: today,
+    animal: ANIMAL_EMOJI[data.animalType],
+  };
+  if (!week.logs) week.logs = [];
+  week.logs.push(log);
+  week.score += points;
+
+  // ステージチェック（1日1段階）
+  const newStage = getStage(week.score);
+  let stageUpped = false;
+  if (newStage > week.stage && week.lastStageUpDate !== today) {
+    week.stage = newStage;
+    week.lastStageUpDate = today;
+    stageUpped = true;
+  }
+
+  saveData(data);
+  closeModal('recordModal');
+
+  // フローティングポイント演出
+  showFloatingPt(`+${points}pt ✨`);
+
+  // コメント表示
+  setTimeout(() => {
+    const comment = getRandom(PHRASES.afterRecord[data.animalType]);
+    document.getElementById('commentChar').textContent = ANIMAL_EMOJI[data.animalType];
+    document.getElementById('commentText').textContent = comment;
+    document.getElementById('commentPt').textContent = `+${points}pt`;
+    openModal('commentModal');
+
+    // 成長演出
+    if (stageUpped) {
+      setTimeout(() => {
+        closeModal('commentModal');
+        setTimeout(() => {
+          const stageInfo = STAGES[newStage];
+          const msgs = PHRASES.stageUp[newStage] || ['新しい姿になったよ！✨'];
+          document.getElementById('stageUpEmoji').textContent = stageInfo.emoji;
+          document.getElementById('stageUpTitle').textContent = `${stageInfo.name} になったよ！`;
+          document.getElementById('stageUpMsg').textContent = getRandom(msgs);
+          openModal('stageUpModal');
+        }, 200);
+      }, 2000);
+    }
+  }, 300);
+
+  updateUI();
+}
+
+// ===== フローティングポイント =====
+function showFloatingPt(text) {
+  const el = document.createElement('div');
+  el.className = 'floating-pt';
+  el.textContent = text;
+  el.style.left = '50%';
+  el.style.top = '40%';
+  el.style.transform = 'translateX(-50%)';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+// ===== モーダル =====
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// オーバーレイクリックで閉じる
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay && overlay.id !== 'animalModal') {
+      overlay.classList.remove('active');
+    }
+  });
+});
+
+// ===== トースト =====
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ===== ページ切り替え =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+}
+
+// ===== 初期化 =====
+window.addEventListener('load', () => {
+  const data = loadData();
+  if (data) {
+    closeModal('animalModal');
+    updateUI();
+  }
+  // 既存データがあればキャラ選択をスキップ
+});
+</script>
+</body>
+</html>
