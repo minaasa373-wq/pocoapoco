@@ -1577,9 +1577,11 @@ function debugShowData() {
 }
 
 // ===== 初期化 =====
+const VALID_ANIMALS = new Set(['wolf', 'fox', 'dragon', 'budgie']);
+
 window.addEventListener('load', () => {
   const data = loadData();
-  if (data) {
+  if (data && VALID_ANIMALS.has(data.animalType)) {
     // 古いデータ構造を補完
     if (!data.weekStartDate) {
       data.weekStartDate = data.createdAt || getTodayStr();
