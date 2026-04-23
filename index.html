@@ -500,11 +500,13 @@
     padding: 12px 0;
   }
   .stage-up-emoji {
-    font-size: 80px;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 12px;
     animation: stageUpPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+  .stage-up-emoji img { width: 140px; height: 140px; object-fit: contain; mix-blend-mode: multiply; }
   @keyframes stageUpPop {
     0% { transform: scale(0); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
@@ -754,6 +756,9 @@
   <div class="nav-item" onclick="showPage('song', this)">
     <span class="nav-icon">🎵</span>
   </div>
+  <div class="nav-item" onclick="showPage('howto', this)">
+    <span class="nav-icon">📖</span>
+  </div>
 </nav>
 
 <!-- メインコンテンツ -->
@@ -840,6 +845,109 @@
       <div class="song-desc">poco a poco — 少しずつ、ぽこあぽこ。<br>タップしてYouTubeで再生🎶</div>
     </div>
   </div><!-- /page-song -->
+
+  <!-- 使い方ページ -->
+  <div class="page" id="page-howto">
+    <p class="section-title">📖 使い方</p>
+
+    <div class="card">
+      <div class="card-title">🌱 ぽこあぽことは</div>
+      <p style="font-size:14px;line-height:1.9;color:var(--dark);">
+        日々の小さな「できた！」を記録してキャラクターを育てるアプリです。<br>
+        AIの活用体験でも、早起きできた日でも、なんでもOK。<br>
+        <strong>競争しない・責めない・焦らない。少しずつで、いい。</strong>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🐾 キャラクターを選ぼう</div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:12px;line-height:1.8;">4種類から1人を選んで育てる。週リセット時に別のキャラに変えることもできる。</p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+        <div style="background:var(--light);border-radius:var(--radius-sm);padding:10px;text-align:center;">
+          <img src="wolf_stage1.webp" style="width:48px;height:48px;object-fit:contain;mix-blend-mode:multiply;">
+          <div style="font-size:12px;font-weight:700;margin-top:4px;">狼獣人</div>
+          <div style="font-size:10px;color:var(--mid);">クール・ツンデレ ♂</div>
+        </div>
+        <div style="background:var(--light);border-radius:var(--radius-sm);padding:10px;text-align:center;">
+          <img src="fox_stage1.webp" style="width:48px;height:48px;object-fit:contain;mix-blend-mode:multiply;">
+          <div style="font-size:12px;font-weight:700;margin-top:4px;">狐獣人</div>
+          <div style="font-size:10px;color:var(--mid);">明るい・元気 ♀</div>
+        </div>
+        <div style="background:var(--light);border-radius:var(--radius-sm);padding:10px;text-align:center;">
+          <img src="dragon_stage1.webp" style="width:48px;height:48px;object-fit:contain;mix-blend-mode:multiply;">
+          <div style="font-size:12px;font-weight:700;margin-top:4px;">ドラゴン獣人</div>
+          <div style="font-size:10px;color:var(--mid);">神秘的・古風 中性</div>
+        </div>
+        <div style="background:var(--light);border-radius:var(--radius-sm);padding:10px;text-align:center;">
+          <img src="budgie_stage1.webp" style="width:48px;height:48px;object-fit:contain;mix-blend-mode:multiply;">
+          <div style="font-size:12px;font-weight:700;margin-top:4px;">インコ獣人</div>
+          <div style="font-size:10px;color:var(--mid);">のほほん・マイペース ♂</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📈 成長の仕組み</div>
+      <p style="font-size:13px;line-height:1.9;color:var(--dark);">記録するとポイントが貯まってキャラが成長する。</p>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;gap:6px;">
+        <div style="flex:1;background:var(--light);border-radius:var(--radius-sm);padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--mid);">🥚<br>幼児期<br><span style="font-size:9px;">0pt〜</span></div>
+        <div style="flex:1;background:var(--light);border-radius:var(--radius-sm);padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--mid);">✨<br>少年期<br><span style="font-size:9px;">100pt〜</span></div>
+        <div style="flex:1;background:var(--light);border-radius:var(--radius-sm);padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--mid);">✨<br>青年期<br><span style="font-size:9px;">250pt〜</span></div>
+        <div style="flex:1;background:rgba(107,191,181,0.15);border-radius:var(--radius-sm);border:1.5px solid rgba(107,191,181,0.4);padding:8px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--coral);">🎓<br>成年期<br><span style="font-size:9px;">450pt〜</span></div>
+      </div>
+      <p style="font-size:12px;color:var(--mid);margin-top:10px;line-height:1.7;">次の姿はお楽しみ🎁<br>1日1段階まで・7日間でリセット</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎮 できること一覧</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:13px;line-height:1.6;">📝 今日できたことを記録する</div>
+        <div style="font-size:13px;line-height:1.6;">🍖 ご飯をあげる</div>
+        <div style="font-size:13px;line-height:1.6;">🧹 お部屋の掃除をする</div>
+        <div style="font-size:13px;line-height:1.6;">👆 キャラをなでる</div>
+        <div style="font-size:13px;line-height:1.6;">🏆 スタンプ帳で実績を解除</div>
+        <div style="font-size:13px;line-height:1.6;">🎓 卒業ギャラリーで歴代キャラを見る</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 ポイントの貯め方</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <tr style="border-bottom:1px solid var(--light);">
+          <td style="padding:8px 4px;color:var(--dark);">📝 今日できたことを記録</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+15pt</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--light);">
+          <td style="padding:8px 4px;color:var(--dark);">🤖 AIツールを使った</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+5pt</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--light);">
+          <td style="padding:8px 4px;color:var(--dark);">🍖 ご飯をあげる（1日1回）</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+5pt</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--light);">
+          <td style="padding:8px 4px;color:var(--dark);">🧹 部屋の掃除（1日1回）</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+5pt</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--light);">
+          <td style="padding:8px 4px;color:var(--dark);">📅 3日連続ログイン</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+30pt</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 4px;color:var(--dark);">📊 週次振り返りを記入</td>
+          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+25pt</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎓 ギャラリー入りの条件</div>
+      <p style="font-size:13px;line-height:1.9;color:var(--dark);">
+        成年期（450pt〜）まで育てると卒業してギャラリー入り🎉<br>
+        何週かけて何人育てられるか挑戦しよう！
+      </p>
+    </div>
+  </div><!-- /page-howto -->
 
 </main>
 
@@ -989,95 +1097,48 @@ const ACHIEVEMENT_LABELS = Object.fromEntries(
 );
 
 // ===== 定型文バンク =====
+// afterRecord[animalType][stage(0-3)] の形式
 const PHRASES = {
   afterRecord: {
     wolf: [
-      '…悪くない',
-      'まあ、よくやったな',
-      '…認めてやる',
-      'それくらいやれると思ってた',
-      '…次も期待してる',
-      'ふん。でも、よくやった',
-      '…少しだけ、見直した',
-      'まあ…合格だ',
-      '…そういうところ、嫌いじゃない',
-      '黙って続けることが大事だ',
-      '…お前、やるじゃないか',
-      'ちゃんと見てた。よくやったな',
-      '…地味に続けてるの、知ってるぞ',
-      '俺が認めてやる。よくやった',
-      '…ま、悪くない一日だったな',
-      'そういうことの積み重ねが強さになる',
-      '…次も来い',
-      'お前のこと、少し見くびってたかもな',
-      '…うん。それでいい',
-      '記録した。それだけで十分だ',
+      // stage0: たまご期（まだ眠っている）
+      ['…（たまご越しに、なにか届いてる）', '…（うごいた気がする）', '…（もうすぐ、出る）', '…（なんか嬉しい）', '…（ドクン）'],
+      // stage1: 少年期（生まれたて、ツンデレが芽生え始め）
+      ['…や、やるじゃないか', 'ま、まあ…えらいな', '…悪くない（小声）', 'べ、べつに嬉しくないし', '…う、うん。よくやった', 'もっとできるかもな、きみ', 'ふ、ふん。いいんじゃない'],
+      // stage2: 青年期（ツンデレが板につき始める）
+      ['ふん。でも、よくやった', '…認めてやるよ', '少しは見直したぞ', '…次も期待してる', 'まあ、合格点はあげる', 'そういうとこ、嫌いじゃない', '地味に続けてるの、知ってるぞ', '…次も来い'],
+      // stage3: 成年期（クール・寡黙・本物のツンデレ）
+      ['…悪くない', 'まあ、よくやったな', '黙って続けることが大事だ', '俺が認めてやる', '…うん。それでいい', '記録した。それだけで十分だ', 'そういうことの積み重ねが強さになる', '…お前、やるじゃないか'],
     ],
     fox: [
-      'わあ！すごい！',
-      'さすがだね！',
-      'それってめちゃくちゃいいじゃん！',
-      'えらい！えらすぎる！',
-      '最高！もっと聞かせて！',
-      'きみのこと、もっと好きになっちゃった！',
-      'そういうの大事だよね！',
-      'ナイス！ほんとナイス！',
-      'うわ〜、それってすごくない！？',
-      'きみって本当にすごいよね〜！',
-      'もう！好きすぎる！',
-      'それ聞いてテンション上がっちゃった！',
-      'さすが！やっぱり期待を裏切らないよね！',
-      'ありがとう！話してくれて嬉しい！',
-      'いやもう、ほんとえらすぎる！',
-      '今日もありがとう！大好きだよ！',
-      'そういう気づきって大事だよね！',
-      'きみのこと応援したくなっちゃう！',
-      'やったやった！うれしいな〜！',
-      'また話してね！いつでも待ってるよ！',
+      // stage0: たまご期
+      ['…（ぽかぽかして嬉しい！）', '…（なにか届いた！）', '…（もうすぐ会えるね！）', '…（ドキドキ！）', '…（絶対仲良くなるんだから！）'],
+      // stage1: 少年期（素直で無邪気）
+      ['わあ！すごい！', 'えらいえらい〜！', 'もっと教えて！', '好き！大好き！', 'すごいじゃん！', 'やった〜！！', 'うれしい！'],
+      // stage2: 青年期（元気で明るく、より表現豊か）
+      ['それってめちゃすごくない！？', 'えらい！えらすぎる！', 'きみのこと、もっと好きになっちゃった！', '最高！もっと聞かせて！', 'ナイス！ほんとナイス！', 'うわ〜、テンション上がった！', 'さすが！やっぱり！'],
+      // stage3: 成年期（ポジティブで情熱的）
+      ['わあ！すごい！さすがだね！', 'えらい！えらすぎる！大好き！', 'それってめちゃくちゃいいじゃん！', '最高！もっと聞かせて！', 'きみと話してると元気出る！', 'また話してね！いつでも待ってるよ！', 'そういう気づきって大事だよね！'],
     ],
     dragon: [
-      'うむ、よき歩みじゃ',
-      'その積み重ねが力となる',
-      '…小さき一歩が、大きな道となるのじゃ',
-      'よくやった。我は見ておったぞ',
-      'ふむ…なかなかじゃ',
-      'その努力、無駄にはならぬ',
-      '…地道な積み重ね、それが真の力じゃ',
-      'うむ。よき記録じゃ',
-      'そなた、なかなかやるのじゃ',
-      '…我もそなたの歩みを誇りに思うぞ',
-      'ぽこあぽこ、それが正しき道じゃ',
-      '焦らずともよい。着実に進むことが肝要じゃ',
-      '…その一歩、価値あるものじゃ',
-      'うむ、続けること。それが全てじゃ',
-      '我は見ておる。そなたの成長を',
-      '…良い記録じゃ。この調子で参れ',
-      'そなたの努力、我が認めよう',
-      '小さきことを侮るなかれ。積み重なれば山となる',
-      '…ふむ。今日もよくやったのじゃ',
-      'この記録が、やがて大きな力となるじゃろう',
+      // stage0: たまご期（殻の中の龍、古代のエネルギー）
+      ['…（殻の中で、力が満ちてゆく）', '…（そなたの気配が届いておる）', '…（もうすぐじゃ）', '…（力、感じるぞ）', '…（運命、始まりつつある）'],
+      // stage1: 少年期（幼い古風な口調）
+      ['…ふむ、よくやったのじゃ', 'うむ…なかなかじゃ', 'よき歩みじゃ', '…我は見ておったぞ', 'えらいのじゃ', '続けるのじゃ'],
+      // stage2: 青年期（格調が増してくる）
+      ['うむ、よき歩みじゃ', 'その積み重ねが力となる', 'よくやった。我は見ておったぞ', 'その努力、無駄にはならぬ', '…その一歩、価値あるものじゃ', 'うむ。よき記録じゃ'],
+      // stage3: 成年期（荘厳・壮大）
+      ['…小さき一歩が、大きな道となるのじゃ', '地道な積み重ね、それが真の力じゃ', 'ぽこあぽこ、それが正しき道じゃ', '焦らずともよい。着実に進むことが肝要じゃ', '小さきことを侮るなかれ。積み重なれば山となる', 'この記録が、やがて大きな力となるじゃろう'],
     ],
     budgie: [
-      'いいじゃん、いいじゃん〜',
-      '…ふわ〜、すごいねぇ',
-      'まあ、ぼちぼちね〜',
-      'のんびりでいいと思うよ〜',
-      'ふふ、よかったねぇ',
-      '…うん、いい感じだよ〜',
-      'そういうのって大事だよね〜',
-      'ゆっくりでいいんだよ〜',
-      'えらいねぇ、ちゃんと記録したんだ〜',
-      '…ふわ〜。うれしいな〜',
-      'いいじゃん〜、続けてるじゃん〜',
-      'まったりいこうよ〜',
-      'そっかそっか〜、よかったね〜',
-      'ぼんやりしてたけど聞いてたよ〜',
-      'えへ〜、なんかいいね〜',
-      '…うん。ゆっくりでいいんだよ〜',
-      'のほほ〜ん。今日もお疲れさま〜',
-      'また話してね〜、待ってるよ〜',
-      'きみのペースで全然いいと思う〜',
-      'ふわふわ〜。ありがとう〜',
+      // stage0: たまご期（ふわふわした眠り）
+      ['…（ふわ〜…）', '…（なんか、あったかい）', '…（もうすぐだよ〜）', '…（ねむい…でも嬉しい）', '…（うとうと〜）'],
+      // stage1: 少年期（のんびりシンプル）
+      ['いいじゃん〜', 'えらいね〜', 'ふわ〜、すごいね', 'ありがとね〜', 'やったね〜', 'のんびりね〜'],
+      // stage2: 青年期（もう少し言葉が増える）
+      ['いいじゃん、いいじゃん〜', 'のんびりでいいよ〜', 'ふふ、よかったね〜', 'まあ、ぼちぼちね〜', 'そっかそっか〜', 'えへ〜、なんかいいね〜'],
+      // stage3: 成年期（完成されたのほほん）
+      ['…ふわ〜、すごいねぇ', 'ゆっくりでいいんだよ〜', 'のほほ〜ん。今日もお疲れさま〜', 'きみのペースで全然いいと思う〜', 'まったりいこうよ〜', 'ぼんやりしてたけど、ちゃんと嬉しいよ〜'],
     ],
   },
   nadetara: {
@@ -1462,7 +1523,7 @@ function confirmName() {
   saveData(data);
   closeModal('nameModal');
   updateUI();
-  showToast(`${name}のたまごが生まれたよ！🥚`);
+  showToast(`${name}だよ！よろしくね！🥚`);
 }
 
 // ===== 記録モーダル =====
@@ -1523,6 +1584,19 @@ function submitRecord() {
     stageUpped = true;
   }
 
+  // stage3到達でギャラリーに即追加
+  if (stageUpped && newStage === 3) {
+    if (!data.gallery) data.gallery = [];
+    data.gallery.push({
+      animalType: data.animalType,
+      charName: data.charName || null,
+      stage: 3,
+      score: week.score,
+      startDate: data.weekStartDate,
+    });
+    checkAchievement('first_graduate', data);
+  }
+
   saveData(data);
 
   // 実績チェック
@@ -1538,9 +1612,10 @@ function submitRecord() {
   showFloatingPt(`+${points}pt ✨`);
 
   setTimeout(() => {
-    const comment = getRandom(PHRASES.afterRecord[data.animalType]);
+    const stageLines = PHRASES.afterRecord[data.animalType];
+    const comment = getRandom(stageLines[week.stage] || stageLines[0]);
     const cEl = document.getElementById('commentChar');
-    cEl.innerHTML = `<img src="${data.animalType}_stage${week.stage}.webp" style="width:80px;height:80px;object-fit:contain;mix-blend-mode:multiply;" onerror="this.outerHTML='${ANIMAL_EMOJI[data.animalType]}';">`;
+    cEl.innerHTML = `<img src="${data.animalType}_stage${week.stage}.webp" style="width:100px;height:100px;object-fit:contain;mix-blend-mode:multiply;" onerror="this.outerHTML='${ANIMAL_EMOJI[data.animalType]}';">`;
     document.getElementById('commentText').textContent = comment;
     document.getElementById('commentPt').textContent = `+${points}pt`;
     openModal('commentModal');
@@ -1549,10 +1624,10 @@ function submitRecord() {
       setTimeout(() => {
         closeModal('commentModal');
         setTimeout(() => {
-          const stageInfo = STAGES[newStage];
-          const msgs = PHRASES.stageUp[newStage] || ['新しい姿になったよ！✨'];
-          document.getElementById('stageUpEmoji').textContent = stageInfo.emoji;
-          document.getElementById('stageUpTitle').textContent = `${stageInfo.name} になったよ！`;
+          const msgs = PHRASES.stageUp[newStage] || ['成長したよ！✨'];
+          document.getElementById('stageUpEmoji').innerHTML =
+            `<img src="${data.animalType}_stage${newStage}.webp" onerror="this.outerHTML='<span style=font-size:80px>${STAGES[newStage].emoji}</span>'">`;
+          document.getElementById('stageUpTitle').textContent = '成長したよ！';
           document.getElementById('stageUpMsg').textContent = getRandom(msgs);
           openModal('stageUpModal');
         }, 200);
@@ -1664,22 +1739,16 @@ function showPage(name, navEl) {
   if (navEl) navEl.classList.add('active');
 }
 
-// ===== デバッグショートカット =====
-let lastKey = '';
+// ===== デバッグショートカット (A→D→数字) =====
+let keyBuffer = '';
+let keyTimer = null;
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'd' || e.key === 'D') {
-    lastKey = 'D';
-    return;
-  }
-  if (lastKey === 'D') {
-    if (e.key === '1') debugNextDay();
-    if (e.key === '2') debugMaxPt();
-    if (e.key === '3') debugWeekReset();
-    if (e.key === '0') debugShowData();
-    lastKey = '';
-    return;
-  }
-  lastKey = '';
+  keyBuffer += e.key.toUpperCase();
+  clearTimeout(keyTimer);
+  keyTimer = setTimeout(() => { keyBuffer = ''; }, 2000);
+  if (keyBuffer.endsWith('AD1')) { debugNextDay(); keyBuffer = ''; }
+  else if (keyBuffer.endsWith('AD2')) { debugNextStage(); keyBuffer = ''; }
+  else if (keyBuffer.endsWith('AD0')) { debugAllReset(); keyBuffer = ''; }
 });
 
 function debugNextDay() {
@@ -1692,39 +1761,30 @@ function debugNextDay() {
   const week = getCurrentWeek(data);
   week.lastFeedDate = '';
   week.lastCleanDate = '';
+  week.lastStageUpDate = '';
   saveData(data);
   checkWeeklyReset();
   updateUI();
   showToast('🧪 1日進めました');
 }
 
-function debugMaxPt() {
+function debugNextStage() {
   const data = loadData();
   if (!data) return;
   const week = getCurrentWeek(data);
-  week.score = 450;
-  week.stage = getStage(450);
+  const currentStage = getStage(week.score);
+  if (currentStage >= STAGES.length - 1) { showToast('🧪 最高ステージです'); return; }
+  week.score = STAGES[currentStage + 1].minPt;
+  week.lastStageUpDate = '';
   saveData(data);
   updateUI();
-  showToast('🧪 ptを最大にしました');
+  showToast(`🧪 次のステージ閾値 (${week.score}pt) に設定`);
 }
 
-function debugWeekReset() {
-  const data = loadData();
-  if (!data) return;
-  // 7日前にweekStartDateを設定して強制リセット
-  const past = new Date();
-  past.setDate(past.getDate() - 7);
-  data.weekStartDate = past.toLocaleDateString('sv-SE');
-  saveData(data);
-  checkWeeklyReset();
-  updateUI();
-  showToast('🧪 週次リセットを実行しました');
-}
-
-function debugShowData() {
-  console.log(loadData());
-  showToast('🧪 データをコンソールに表示しました');
+function debugAllReset() {
+  localStorage.removeItem('pocoapoco');
+  showToast('🧪 全データをリセットしました');
+  setTimeout(() => location.reload(), 600);
 }
 
 // ===== 初期化 =====
