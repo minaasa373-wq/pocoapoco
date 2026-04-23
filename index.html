@@ -480,7 +480,8 @@
     text-align: center;
     margin-bottom: 20px;
   }
-  .comment-char { font-size: 48px; margin-bottom: 8px; }
+  .comment-char { font-size: 48px; margin-bottom: 8px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+  .comment-char img { width: 100px; height: 100px; object-fit: contain; mix-blend-mode: multiply; }
   .comment-text { font-size: 15px; line-height: 1.7; color: var(--dark); font-weight: 500; }
   .comment-pt {
     display: inline-block;
@@ -654,10 +655,13 @@
   .gallery-item {
     background: var(--light);
     border-radius: var(--radius-sm);
-    padding: 12px 8px;
+    padding: 10px 6px;
     text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
   }
-  .gallery-item .g-emoji { font-size: 32px; display: block; margin-bottom: 4px; }
+  .gallery-item:hover { transform: scale(1.04); }
+  .gallery-item img { width: 60px; height: 60px; object-fit: contain; mix-blend-mode: multiply; display: block; margin: 0 auto 4px; }
   .gallery-item .g-name { font-size: 10px; font-weight: 700; color: var(--dark); }
   .gallery-item .g-score { font-size: 9px; color: var(--mid); }
   .gallery-empty {
@@ -667,6 +671,65 @@
     font-size: 13px;
     line-height: 1.8;
   }
+
+  /* ===== ギャラリーポップアップ ===== */
+  .gallery-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .gallery-popup.active { opacity: 1; pointer-events: all; }
+  .gallery-popup img { width: 200px; height: 200px; object-fit: contain; mix-blend-mode: multiply; background: white; border-radius: 24px; padding: 16px; }
+  .gallery-popup-info { color: white; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.8; }
+  .gallery-popup-close { color: white; font-size: 13px; opacity: 0.7; cursor: pointer; margin-top: 4px; }
+
+  /* ===== テーマソングページ ===== */
+  .song-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
+  }
+  .song-thumb {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    position: relative;
+  }
+  .song-thumb img { width: 100%; display: block; }
+  .song-thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .song-play-btn {
+    width: 64px; height: 64px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+  .song-info { padding: 16px; }
+  .song-title { font-size: 15px; font-weight: 900; color: var(--dark); margin-bottom: 4px; }
+  .song-desc { font-size: 12px; color: var(--mid); line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -687,6 +750,9 @@
   </div>
   <div class="nav-item" onclick="showPage('stamps', this)">
     <span class="nav-icon">🏆</span>
+  </div>
+  <div class="nav-item" onclick="showPage('song', this)">
+    <span class="nav-icon">🎵</span>
   </div>
 </nav>
 
@@ -730,8 +796,8 @@
       <span class="record-btn-icon">✏️</span>今日できたことを記録する
     </button>
 
-    <!-- 今週の記録 -->
-    <p class="section-title">📝 今週の記録</p>
+    <!-- 過去の記録 -->
+    <p class="section-title">📝 過去の記録</p>
     <div class="card">
       <div id="logsList">
         <div class="no-logs">
@@ -760,7 +826,29 @@
 
   </div><!-- /page-stamps -->
 
+  <!-- テーマソングページ -->
+  <div class="page" id="page-song">
+    <p class="section-title">🎵 テーマソング</p>
+    <a class="song-thumb" href="https://youtube.com/shorts/kmFJR3TpWpE?si=6IGMEx4YnFHS5l2j" target="_blank" rel="noopener">
+      <img src="https://img.youtube.com/vi/kmFJR3TpWpE/hqdefault.jpg" alt="テーマソング" onerror="this.style.display='none'">
+      <div class="song-thumb-overlay">
+        <div class="song-play-btn">▶</div>
+      </div>
+    </a>
+    <div class="card" style="margin-top:12px;">
+      <div class="song-title">ぽこあぽこ テーマソング</div>
+      <div class="song-desc">poco a poco — 少しずつ、ぽこあぽこ。<br>タップしてYouTubeで再生🎶</div>
+    </div>
+  </div><!-- /page-song -->
+
 </main>
+
+<!-- ギャラリーポップアップ -->
+<div class="gallery-popup" id="galleryPopup" onclick="closeGalleryPopup()">
+  <img id="galleryPopupImg" src="" alt="">
+  <div class="gallery-popup-info" id="galleryPopupInfo"></div>
+  <div class="gallery-popup-close">タップして閉じる</div>
+</div>
 
 <!-- トースト -->
 <div class="toast" id="toast"></div>
@@ -815,7 +903,7 @@
 </div>
 
 <!-- ===== キャラ選択モーダル ===== -->
-<div class="modal-overlay active" id="animalModal">
+<div class="modal-overlay" id="animalModal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">🐾 どの子にする？</div>
@@ -1108,6 +1196,7 @@ function checkWeeklyReset() {
     const week = getCurrentWeek(data);
     data.gallery.push({
       animalType: data.animalType,
+      charName: data.charName || null,
       stage: week.stage || 0,
       score: week.score || 0,
       startDate: data.weekStartDate,
@@ -1121,8 +1210,12 @@ function checkWeeklyReset() {
       score: 0, stage: 0, lastStageUpDate: '',
       lastFeedDate: '', lastCleanDate: '', logs: [],
     };
+    data.animalType = null;
+    data.charName = null;
     saveData(data);
-    showToast('新しい週が始まったよ！🎉');
+    showToast('新しい週が始まったよ！新しい子を選んでね🎉');
+    selectedAnimal = null;
+    openModal('animalModal');
   }
 }
 
@@ -1232,12 +1325,21 @@ function updateUI() {
   feedBtn.classList.toggle('done', week.lastFeedDate === today);
   cleanBtn.classList.toggle('done', week.lastCleanDate === today);
 
-  // ログ表示
-  renderLogs(week.logs || []);
+  // ログ表示（全記録）
+  const allLogs = buildAllLogs(data);
+  renderLogs(allLogs);
 
   // 実績表示更新
   renderAchievements(data);
   renderGallery(data);
+}
+
+function buildAllLogs(data) {
+  const logs = [];
+  for (const week of Object.values(data.weeks || {})) {
+    for (const log of (week.logs || [])) logs.push(log);
+  }
+  return logs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 }
 
 function renderLogs(logs) {
@@ -1246,7 +1348,7 @@ function renderLogs(logs) {
     el.innerHTML = `<div class="no-logs"><span class="emoji">🌿</span>今日はどんなことがあった？<br>教えてね</div>`;
     return;
   }
-  const recent = [...logs].reverse().slice(0, 5);
+  const recent = logs.slice(0, 20);
   el.innerHTML = recent.map(log => {
     const at = log.animalType;
     const st = log.stage ?? 0;
@@ -1494,13 +1596,28 @@ function renderGallery(data) {
     el.innerHTML = `<div class="gallery-empty">まだ卒業したキャラはいないよ🌱<br>週を重ねると増えていくよ</div>`;
     return;
   }
-  el.innerHTML = `<div class="gallery-grid">${gallery.map(g => `
-    <div class="gallery-item">
-      <span class="g-emoji">${ANIMAL_EMOJI[g.animalType] || '🥚'}</span>
-      <div class="g-name">${ANIMAL_NAMES[g.animalType] || g.animalType}</div>
+  el.innerHTML = `<div class="gallery-grid">${gallery.map((g, i) => `
+    <div class="gallery-item" onclick="openGalleryPopup(${i})">
+      <img src="${g.animalType}_stage${g.stage}.webp" alt="${ANIMAL_NAMES[g.animalType] || ''}"
+           onerror="this.outerHTML='<span style=font-size:32px>${ANIMAL_EMOJI[g.animalType] || '🥚'}</span>'">
+      <div class="g-name">${g.charName || ANIMAL_NAMES[g.animalType] || g.animalType}</div>
       <div class="g-score">${g.score}pt / Stage${g.stage}</div>
-      <div class="g-score">${g.startDate || ''}</div>
     </div>`).join('')}</div>`;
+}
+
+function openGalleryPopup(index) {
+  const data = loadData();
+  if (!data) return;
+  const g = (data.gallery || [])[index];
+  if (!g) return;
+  document.getElementById('galleryPopupImg').src = `${g.animalType}_stage${g.stage}.webp`;
+  document.getElementById('galleryPopupInfo').innerHTML =
+    `${g.charName || ANIMAL_NAMES[g.animalType] || g.animalType}<br>${g.score}pt / Stage${g.stage}<br>${g.startDate || ''}`;
+  document.getElementById('galleryPopup').classList.add('active');
+}
+
+function closeGalleryPopup() {
+  document.getElementById('galleryPopup').classList.remove('active');
 }
 
 // ===== フローティングポイント =====
@@ -1616,16 +1733,17 @@ const VALID_ANIMALS = new Set(['wolf', 'fox', 'dragon', 'budgie']);
 window.addEventListener('load', () => {
   const data = loadData();
   if (data && VALID_ANIMALS.has(data.animalType)) {
-    // 古いデータ構造を補完
     if (!data.weekStartDate) {
       data.weekStartDate = data.createdAt || getTodayStr();
       saveData(data);
     }
     if (!data.gallery) { data.gallery = []; saveData(data); }
     if (!data.achievements) { data.achievements = {}; saveData(data); }
-    closeModal('animalModal');
+    if (!data.allLogs) { data.allLogs = []; saveData(data); }
     checkWeeklyReset();
     updateUI();
+  } else {
+    openModal('animalModal');
   }
 });
 </script>
