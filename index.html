@@ -115,6 +115,7 @@
     height: 160px;
     margin: 0 auto 16px;
     position: relative;
+    cursor: pointer;
   }
   .character-svg {
     width: 100%;
@@ -124,6 +125,14 @@
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
+  }
+  @keyframes charHappy {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(-5deg); }
+    75% { transform: scale(1.15) rotate(5deg); }
+  }
+  .character-svg.happy {
+    animation: charHappy 0.5s ease-in-out;
   }
   .character-glow {
     position: absolute;
@@ -136,32 +145,74 @@
     border-radius: 50%;
   }
 
-  /* ひとこと */
-  .character-speech {
-    background: var(--light);
-    border-radius: var(--radius-md);
-    padding: 12px 16px;
-    font-size: 14px;
+  /* 吹き出し */
+  .speech-bubble {
+    position: absolute;
+    top: -64px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid rgba(58,40,69,0.12);
+    border-radius: 16px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--dark);
-    line-height: 1.6;
-    margin-bottom: 16px;
-    position: relative;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    animation: bubbleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+    pointer-events: none;
   }
-  .character-speech::before {
+  .speech-bubble::after {
     content: '';
     position: absolute;
-    top: -8px;
+    bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
     border: 8px solid transparent;
-    border-bottom-color: var(--light);
-    border-top: none;
+    border-top-color: white;
+    border-bottom: none;
   }
+  @keyframes bubbleIn {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  }
+
   .character-name {
     font-size: 12px;
     color: var(--mid);
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
+  }
+
+  /* キャラアクションボタン */
+  .char-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .char-action-btn {
+    background: var(--light);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .char-action-btn:hover { transform: scale(1.05); background: #EEE0DA; }
+  .char-action-btn.done {
+    opacity: 0.5;
+    cursor: default;
+    transform: none;
   }
 
   /* スコアバー */
@@ -549,6 +600,71 @@
     background: linear-gradient(90deg, var(--light), transparent);
     border-radius: 10px;
   }
+
+  /* ===== 実績スタンプ帳 ===== */
+  .achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .achievement-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 4px;
+    border-radius: var(--radius-sm);
+    background: var(--light);
+    text-align: center;
+  }
+  .achievement-item.unlocked {
+    background: linear-gradient(135deg, rgba(255,179,71,0.15), rgba(93,219,181,0.15));
+    border: 1.5px solid rgba(255,179,71,0.3);
+  }
+  .achievement-stamp {
+    font-size: 28px;
+    filter: grayscale(1) opacity(0.3);
+  }
+  .achievement-item.unlocked .achievement-stamp {
+    filter: none;
+  }
+  .achievement-name {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--mid);
+    line-height: 1.3;
+  }
+  .achievement-item.unlocked .achievement-name {
+    color: var(--dark);
+  }
+  .achievement-date {
+    font-size: 8px;
+    color: var(--mid);
+    opacity: 0.7;
+  }
+
+  /* ===== ギャラリー ===== */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .gallery-item {
+    background: var(--light);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .gallery-item .g-emoji { font-size: 32px; display: block; margin-bottom: 4px; }
+  .gallery-item .g-name { font-size: 10px; font-weight: 700; color: var(--dark); }
+  .gallery-item .g-score { font-size: 9px; color: var(--mid); }
+  .gallery-empty {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--mid);
+    font-size: 13px;
+    line-height: 1.8;
+  }
 </style>
 </head>
 <body>
@@ -570,12 +686,18 @@
 
     <!-- キャラカード -->
     <div class="character-card">
-      <div class="character-display">
-        <div class="character-svg" id="characterDisplay"></div>
+      <div class="character-display" id="characterDisplay" onclick="onCharacterClick()">
+        <div class="character-svg" id="characterSvg"></div>
         <div class="character-glow"></div>
       </div>
       <div class="character-name" id="characterName">たまご</div>
-      <div class="character-speech" id="dailyMessage">読み込み中...</div>
+
+      <!-- ケアアクション -->
+      <div class="char-actions">
+        <button class="char-action-btn" id="feedBtn" onclick="feedCharacter()">🍚 ご飯</button>
+        <button class="char-action-btn" id="cleanBtn" onclick="cleanCharacter()">✨ おそうじ</button>
+      </div>
+
       <div class="score-section">
         <div class="score-header">
           <span class="score-label">今週のスコア</span>
@@ -609,13 +731,34 @@
 
   </div><!-- /page-home -->
 
+  <!-- スタンプ帳ページ -->
+  <div class="page" id="page-stamps">
+
+    <p class="section-title">🏆 実績スタンプ帳</p>
+    <div class="card">
+      <div class="achievement-grid" id="achievementGrid"></div>
+    </div>
+
+    <p class="section-title">🖼️ キャラギャラリー</p>
+    <div class="card">
+      <div id="galleryContent">
+        <div class="gallery-empty">まだ卒業したキャラはいないよ🌱<br>週を重ねると増えていくよ</div>
+      </div>
+    </div>
+
+  </div><!-- /page-stamps -->
+
 </main>
 
 <!-- ボトムナビ -->
 <nav class="bottom-nav">
-  <div class="nav-item active" onclick="showPage('home')">
+  <div class="nav-item active" onclick="showPage('home', this)">
     <span class="nav-icon">🏠</span>
     <span class="nav-label">ホーム</span>
+  </div>
+  <div class="nav-item" onclick="showPage('stamps', this)">
+    <span class="nav-icon">🏆</span>
+    <span class="nav-label">スタンプ帳</span>
   </div>
 </nav>
 
@@ -719,6 +862,26 @@ const ANIMAL_NAMES = {
   chick: 'ひよこ', cat: 'ねこ', bear: 'くま', rabbit: 'うさぎ'
 };
 
+// ===== 実績定義 =====
+const ACHIEVEMENTS = [
+  { id: 'first_record',   stamp: '📝', name: 'はじめての記録' },
+  { id: 'first_ai',       stamp: '🤖', name: 'AIツール使用' },
+  { id: 'streak_3',       stamp: '🔥', name: '3日連続ログイン' },
+  { id: 'streak_7',       stamp: '🌟', name: '7日連続ログイン' },
+  { id: 'stage_1',        stamp: '🐣', name: 'Stage 1達成' },
+  { id: 'stage_2',        stamp: '🌱', name: 'Stage 2達成' },
+  { id: 'stage_3',        stamp: '✨', name: 'Stage 3達成' },
+  { id: 'first_graduate', stamp: '🎓', name: 'はじめての卒業' },
+  { id: 'food_complete',  stamp: '🍽️', name: 'ご飯10回' },
+  { id: 'record_10',      stamp: '📖', name: '累計10回記録' },
+  { id: 'record_30',      stamp: '📚', name: '累計30回記録' },
+  { id: 'first_clean',    stamp: '🧹', name: 'はじめての掃除' },
+];
+
+const ACHIEVEMENT_LABELS = Object.fromEntries(
+  ACHIEVEMENTS.map(a => [a.id, `${a.stamp} ${a.name}`])
+);
+
 // ===== 定型文バンク =====
 const PHRASES = {
   afterRecord: {
@@ -811,14 +974,11 @@ const PHRASES = {
       '一緒にいると楽しいなあ〜！🌸',
     ],
   },
-  dailyMessage: {
-    0: ['ゆっくり休んでね。いつでも待ってるよ🌸', '週次振り返りのチャンス！一緒に見返そう'],
-    1: ['新しい週のはじまりだよ！一緒にいこう🌟', '今週もぽこあぽこ、少しずつね🥚', '月曜日！気負わなくていいよ。少しでOK'],
-    2: ['昨日より少しだけ前に進もう🌱', '今日も小さなできたを探してみてね'],
-    3: ['週の真ん中！ここまで来たね✨', '折り返し地点！よくがんばってるよ'],
-    4: ['もうすぐ週末！あと少しだよ', '今日も一つだけでいい。できたを探してみて🌿'],
-    5: ['もうすぐ週末！今週もお疲れさま🎉', '今週できたこと、ちゃんと覚えてるよ', '金曜日！今週もよくがんばったね'],
-    6: ['今日はゆっくりしてね🌸', '週次振り返りのチャンス！一緒に見返そう'],
+  nadetara: {
+    chick: ['ぴよっ！くすぐったいよ〜🐣', 'やったやった！うれしい！', 'もっとなでて！ぴよ！', 'ふふ、好きだよ！'],
+    cat: ['…ま、まあ、嫌いじゃないにゃ🐱', 'ふん…悪くないにゃ', '…にゃ（照）', 'ちょっとだけ、いいにゃ'],
+    bear: ['ありがとう、うれしいよ🐻', 'ほわ〜気持ちいい🍯', 'また来てね〜', 'ぬくぬく…幸せ'],
+    rabbit: ['わあ！うれしい！🐰', 'もっともっと！', 'きゅん！', 'ありがとうー！わくわく！'],
   },
   stageUp: {
     1: ['わあ！うまれたよ！よろしくね🐣', 'あなたのおかげでうまれられたよ！', 'はじめまして！いっぱいよろしくね！'],
@@ -847,14 +1007,20 @@ function initData(animalType) {
   const weekId = getWeekId();
   const data = {
     animalType,
+    weekStartDate: today,
+    currentWeekId: weekId,
     weeks: {
       [weekId]: {
         score: 0,
         stage: 0,
         lastStageUpDate: '',
+        lastFeedDate: '',
+        lastCleanDate: '',
         logs: [],
       }
     },
+    gallery: [],
+    achievements: {},
     createdAt: today,
   };
   saveData(data);
@@ -873,12 +1039,61 @@ function getWeekId() {
 }
 
 function getCurrentWeek(data) {
-  const weekId = getWeekId();
+  const weekId = data.currentWeekId || getWeekId();
   if (!data.weeks[weekId]) {
-    data.weeks[weekId] = { score: 0, stage: 0, lastStageUpDate: '', logs: [] };
+    data.weeks[weekId] = {
+      score: 0, stage: 0, lastStageUpDate: '',
+      lastFeedDate: '', lastCleanDate: '', logs: [],
+    };
     saveData(data);
   }
   return data.weeks[weekId];
+}
+
+// ===== 週リセット =====
+function getDaysUntilReset(data) {
+  if (!data.weekStartDate) {
+    data.weekStartDate = data.createdAt || getTodayStr();
+    saveData(data);
+  }
+  const start = new Date(data.weekStartDate);
+  const today = new Date(getTodayStr());
+  const elapsed = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  return Math.max(0, 6 - elapsed);
+}
+
+function checkWeeklyReset() {
+  const data = loadData();
+  if (!data) return;
+  if (!data.weekStartDate) {
+    data.weekStartDate = data.createdAt || getTodayStr();
+    saveData(data);
+    return;
+  }
+  const start = new Date(data.weekStartDate);
+  const today = new Date(getTodayStr());
+  const elapsed = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  if (elapsed >= 7) {
+    if (!data.gallery) data.gallery = [];
+    const week = getCurrentWeek(data);
+    data.gallery.push({
+      animalType: data.animalType,
+      stage: week.stage || 0,
+      score: week.score || 0,
+      startDate: data.weekStartDate,
+    });
+    if (week.stage >= 3) checkAchievement('first_graduate', data);
+
+    const newWeekId = getWeekId();
+    data.weekStartDate = getTodayStr();
+    data.currentWeekId = newWeekId;
+    data.weeks[newWeekId] = {
+      score: 0, stage: 0, lastStageUpDate: '',
+      lastFeedDate: '', lastCleanDate: '', logs: [],
+    };
+    saveData(data);
+    showToast('新しい週が始まったよ！🎉');
+  }
 }
 
 // ===== ステージ計算 =====
@@ -904,17 +1119,8 @@ function getCharacterHTML(animalType, stage) {
                      stage === 1 ? ANIMAL_EMOJI[animalType] :
                      stage === 2 ? ANIMAL_EMOJI[animalType] :
                      '✨';
-  const size = stage === 0 ? '120px' : '100px';
-  const bgGradients = {
-    chick:  'radial-gradient(circle at 40% 35%, #FFF9DC, #FFE066)',
-    cat:    'radial-gradient(circle at 40% 35%, #F5E6FF, #DDB8FF)',
-    bear:   'radial-gradient(circle at 40% 35%, #FFE8D6, #FFBA8A)',
-    rabbit: 'radial-gradient(circle at 40% 35%, #FFE6F2, #FFB3D6)',
-  };
-  const bg = bgGradients[animalType] || bgGradients.chick;
 
   if (stage === 0) {
-    // たまご
     return `
       <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -932,15 +1138,44 @@ function getCharacterHTML(animalType, stage) {
         <ellipse cx="66" cy="74" rx="8" ry="10" fill="rgba(255,255,255,0.5)"/>
       </svg>`;
   } else {
-    // キャラ（絵文字ベース）
     return `
       <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="80" cy="80" r="62" fill="${bg.includes('radial') ? '#FFF9DC' : '#FFF9DC'}" opacity="0.5"/>
+        <circle cx="80" cy="80" r="62" fill="#FFF9DC" opacity="0.5"/>
         <text x="80" y="105" font-size="72" text-anchor="middle" dominant-baseline="middle">${stageEmoji}</text>
         ${stage === 2 ? '<text x="110" y="50" font-size="20" opacity="0.7">🌟</text>' : ''}
         ${stage === 3 ? '<text x="110" y="40" font-size="24">✨</text><text x="30" y="45" font-size="18">⭐</text>' : ''}
       </svg>`;
   }
+}
+
+// ===== 吹き出し =====
+function showSpeechBubble(text) {
+  const existing = document.querySelector('.speech-bubble');
+  if (existing) existing.remove();
+
+  const bubble = document.createElement('div');
+  bubble.className = 'speech-bubble';
+  bubble.textContent = text;
+
+  const charDisplay = document.getElementById('characterDisplay');
+  charDisplay.appendChild(bubble);
+
+  setTimeout(() => bubble.remove(), 2000);
+}
+
+// ===== キャラクリック（なでる）=====
+function onCharacterClick() {
+  const data = loadData();
+  if (!data) return;
+
+  const svgEl = document.getElementById('characterSvg');
+  svgEl.classList.remove('happy');
+  void svgEl.offsetWidth;
+  svgEl.classList.add('happy');
+  setTimeout(() => svgEl.classList.remove('happy'), 500);
+
+  const phrases = PHRASES.nadetara[data.animalType] || ['うれしい！'];
+  showSpeechBubble(getRandom(phrases));
 }
 
 // ===== UI更新 =====
@@ -952,16 +1187,12 @@ function updateUI() {
   const score = week.score;
   const stage = week.stage;
   const stageInfo = STAGES[stage];
+  const today = getTodayStr();
 
   // キャラ表示
-  document.getElementById('characterDisplay').innerHTML = getCharacterHTML(data.animalType, stage);
+  document.getElementById('characterSvg').innerHTML = getCharacterHTML(data.animalType, stage);
   document.getElementById('characterName').textContent =
     `${ANIMAL_EMOJI[data.animalType]} ${ANIMAL_NAMES[data.animalType]}（${stageInfo.name}）`;
-
-  // 今日のひとこと
-  const day = new Date().getDay();
-  const phrases = PHRASES.dailyMessage[day];
-  document.getElementById('dailyMessage').textContent = getRandom(phrases);
 
   // スコアバー
   document.getElementById('currentScore').textContent = score;
@@ -976,11 +1207,22 @@ function updateUI() {
     document.getElementById('nextStageLabel').textContent = '最高ステージ達成！✨';
   }
 
-  // 週表示
-  document.getElementById('weekInfo').textContent = getWeekId().replace('-', ' ');
+  // 週表示（リセットまであとN日）
+  const daysLeft = getDaysUntilReset(data);
+  document.getElementById('weekInfo').textContent = `リセットまであと ${daysLeft}日`;
+
+  // ケアボタン状態
+  const feedBtn = document.getElementById('feedBtn');
+  const cleanBtn = document.getElementById('cleanBtn');
+  feedBtn.classList.toggle('done', week.lastFeedDate === today);
+  cleanBtn.classList.toggle('done', week.lastCleanDate === today);
 
   // ログ表示
   renderLogs(week.logs || []);
+
+  // 実績表示更新
+  renderAchievements(data);
+  renderGallery(data);
 }
 
 function renderLogs(logs) {
@@ -1003,6 +1245,65 @@ function renderLogs(logs) {
       </div>
     </div>
   `).join('');
+}
+
+// ===== ケアアクション =====
+function feedCharacter() {
+  const data = loadData();
+  if (!data) return;
+  const week = getCurrentWeek(data);
+  const today = getTodayStr();
+
+  if (week.lastFeedDate === today) {
+    showSpeechBubble('もうご飯食べたよ〜🍚');
+    return;
+  }
+
+  week.lastFeedDate = today;
+  week.score += 10;
+
+  // ステージチェック
+  const newStage = getStage(week.score);
+  if (newStage > week.stage && week.lastStageUpDate !== today) {
+    week.stage = newStage;
+    week.lastStageUpDate = today;
+  }
+
+  saveData(data);
+  showFloatingPt('+10pt 🍚');
+  showSpeechBubble('ご飯ありがとう！おいしい！');
+
+  // 実績チェック
+  checkAchievement('food_complete', data);
+  updateUI();
+}
+
+function cleanCharacter() {
+  const data = loadData();
+  if (!data) return;
+  const week = getCurrentWeek(data);
+  const today = getTodayStr();
+
+  if (week.lastCleanDate === today) {
+    showSpeechBubble('もうきれいだよ〜✨');
+    return;
+  }
+
+  week.lastCleanDate = today;
+  week.score += 10;
+
+  const newStage = getStage(week.score);
+  if (newStage > week.stage && week.lastStageUpDate !== today) {
+    week.stage = newStage;
+    week.lastStageUpDate = today;
+  }
+
+  saveData(data);
+  showFloatingPt('+10pt ✨');
+  showSpeechBubble('きれいにしてくれてありがとう！');
+
+  checkAchievement('first_clean', data);
+  updateUI();
 }
 
 // ===== キャラ選択 =====
@@ -1055,7 +1356,7 @@ function submitRecord() {
 
   // ポイント計算
   const todayLogs = (week.logs || []).filter(l => l.date === today);
-  let points = todayLogs.length === 0 ? 15 : 5; // 1日1回15pt、2件目以降5pt
+  let points = todayLogs.length === 0 ? 15 : 5;
   if (selectedTools.length > 0) points += 15;
   if (selectedTools.length > 0 && !selectedTools.includes('その他')) points += 5;
 
@@ -1081,12 +1382,18 @@ function submitRecord() {
   }
 
   saveData(data);
-  closeModal('recordModal');
 
-  // フローティングポイント演出
+  // 実績チェック
+  checkAchievement('first_record', data);
+  if (selectedTools.length > 0) checkAchievement('first_ai', data);
+  if (stageUpped) checkAchievement(`stage_${newStage}`, data);
+  const totalLogs = Object.values(data.weeks).reduce((s, w) => s + (w.logs || []).length, 0);
+  if (totalLogs >= 10) checkAchievement('record_10', data);
+  if (totalLogs >= 30) checkAchievement('record_30', data);
+
+  closeModal('recordModal');
   showFloatingPt(`+${points}pt ✨`);
 
-  // コメント表示
   setTimeout(() => {
     const comment = getRandom(PHRASES.afterRecord[data.animalType]);
     document.getElementById('commentChar').textContent = ANIMAL_EMOJI[data.animalType];
@@ -1094,7 +1401,6 @@ function submitRecord() {
     document.getElementById('commentPt').textContent = `+${points}pt`;
     openModal('commentModal');
 
-    // 成長演出
     if (stageUpped) {
       setTimeout(() => {
         closeModal('commentModal');
@@ -1111,6 +1417,48 @@ function submitRecord() {
   }, 300);
 
   updateUI();
+}
+
+// ===== 実績システム =====
+function checkAchievement(id, data) {
+  if (!data.achievements) data.achievements = {};
+  if (data.achievements[id]) return;
+  data.achievements[id] = getTodayStr();
+  saveData(data);
+  const label = ACHIEVEMENT_LABELS[id] || id;
+  showToast(`実績解除！${label}`);
+}
+
+function renderAchievements(data) {
+  const el = document.getElementById('achievementGrid');
+  if (!el) return;
+  const achieved = data.achievements || {};
+  el.innerHTML = ACHIEVEMENTS.map(a => {
+    const unlocked = !!achieved[a.id];
+    return `
+      <div class="achievement-item ${unlocked ? 'unlocked' : ''}">
+        <div class="achievement-stamp">${a.stamp}</div>
+        <div class="achievement-name">${a.name}</div>
+        ${unlocked ? `<div class="achievement-date">${achieved[a.id]}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderGallery(data) {
+  const el = document.getElementById('galleryContent');
+  if (!el) return;
+  const gallery = data.gallery || [];
+  if (gallery.length === 0) {
+    el.innerHTML = `<div class="gallery-empty">まだ卒業したキャラはいないよ🌱<br>週を重ねると増えていくよ</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="gallery-grid">${gallery.map(g => `
+    <div class="gallery-item">
+      <span class="g-emoji">${ANIMAL_EMOJI[g.animalType] || '🥚'}</span>
+      <div class="g-name">${ANIMAL_NAMES[g.animalType] || g.animalType}</div>
+      <div class="g-score">${g.score}pt / Stage${g.stage}</div>
+      <div class="g-score">${g.startDate || ''}</div>
+    </div>`).join('')}</div>`;
 }
 
 // ===== フローティングポイント =====
@@ -1133,7 +1481,6 @@ function closeModal(id) {
   document.getElementById(id).classList.remove('active');
 }
 
-// オーバーレイクリックで閉じる
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => {
     if (e.target === overlay && overlay.id !== 'animalModal') {
@@ -1151,20 +1498,90 @@ function showToast(msg) {
 }
 
 // ===== ページ切り替え =====
-function showPage(name) {
+function showPage(name, navEl) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(`page-${name}`).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+}
+
+// ===== デバッグショートカット =====
+let lastKey = '';
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'd' || e.key === 'D') {
+    lastKey = 'D';
+    return;
+  }
+  if (lastKey === 'D') {
+    if (e.key === '1') debugNextDay();
+    if (e.key === '2') debugMaxPt();
+    if (e.key === '3') debugWeekReset();
+    if (e.key === '0') debugShowData();
+    lastKey = '';
+    return;
+  }
+  lastKey = '';
+});
+
+function debugNextDay() {
+  const data = loadData();
+  if (!data) return;
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toLocaleDateString('sv-SE');
+  data.lastLoginDate = tomorrowStr;
+  const week = getCurrentWeek(data);
+  week.lastFeedDate = '';
+  week.lastCleanDate = '';
+  saveData(data);
+  updateUI();
+  showToast('🧪 1日進めました');
+}
+
+function debugMaxPt() {
+  const data = loadData();
+  if (!data) return;
+  const week = getCurrentWeek(data);
+  week.score = 450;
+  week.stage = getStage(450);
+  saveData(data);
+  updateUI();
+  showToast('🧪 ptを最大にしました');
+}
+
+function debugWeekReset() {
+  const data = loadData();
+  if (!data) return;
+  // 7日前にweekStartDateを設定して強制リセット
+  const past = new Date();
+  past.setDate(past.getDate() - 7);
+  data.weekStartDate = past.toLocaleDateString('sv-SE');
+  saveData(data);
+  checkWeeklyReset();
+  updateUI();
+  showToast('🧪 週次リセットを実行しました');
+}
+
+function debugShowData() {
+  console.log(loadData());
+  showToast('🧪 データをコンソールに表示しました');
 }
 
 // ===== 初期化 =====
 window.addEventListener('load', () => {
   const data = loadData();
   if (data) {
+    // 古いデータ構造を補完
+    if (!data.weekStartDate) {
+      data.weekStartDate = data.createdAt || getTodayStr();
+      saveData(data);
+    }
+    if (!data.gallery) { data.gallery = []; saveData(data); }
+    if (!data.achievements) { data.achievements = {}; saveData(data); }
     closeModal('animalModal');
+    checkWeeklyReset();
     updateUI();
   }
-  // 既存データがあればキャラ選択をスキップ
 });
 </script>
 </body>
