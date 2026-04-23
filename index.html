@@ -79,7 +79,7 @@
   main {
     max-width: 480px;
     margin: 0 auto;
-    padding: 20px 16px 100px;
+    padding: 20px 16px 40px;
     position: relative;
     z-index: 1;
   }
@@ -93,8 +93,8 @@
     margin-bottom: 16px;
     text-align: center;
     position: relative;
-    overflow: hidden;
-    border: 2px solid rgba(255,179,71,0.15);
+    overflow: visible;
+    border: 2px solid rgba(107,191,181,0.15);
   }
   .character-card::before {
     content: '';
@@ -535,34 +535,28 @@
     100% { opacity: 0; transform: translateY(-80px) scale(1.2); }
   }
 
-  /* ===== BOTTOM NAV ===== */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid var(--light);
+  /* ===== TOP NAV ===== */
+  .top-nav {
+    background: rgba(107,191,181,0.12);
+    border-bottom: 1px solid rgba(107,191,181,0.2);
     display: flex;
-    padding: 8px 0 16px;
-    z-index: 100;
-    box-shadow: 0 -4px 20px rgba(58,40,69,0.08);
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 12px;
   }
   .nav-item {
-    flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 3px;
+    justify-content: center;
     cursor: pointer;
-    padding: 6px 0;
+    padding: 6px 20px;
+    border-radius: var(--radius-sm);
     transition: all 0.2s;
   }
-  .nav-item:hover { transform: translateY(-2px); }
-  .nav-icon { font-size: 22px; }
-  .nav-label { font-size: 10px; font-weight: 700; color: var(--mid); }
-  .nav-item.active .nav-icon { filter: drop-shadow(0 0 4px rgba(107,191,181,0.5)); }
-  .nav-item.active .nav-label { color: var(--coral); }
+  .nav-item:hover { background: rgba(107,191,181,0.15); }
+  .nav-item.active { background: rgba(107,191,181,0.25); }
+  .nav-icon { font-size: 20px; }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 4px rgba(107,191,181,0.6)); }
 
   /* ===== PAGE VIEWS ===== */
   .page { display: none; }
@@ -686,6 +680,16 @@
   <div class="week-info" id="weekInfo">Week 1</div>
 </header>
 
+<!-- トップナビ -->
+<nav class="top-nav">
+  <div class="nav-item active" onclick="showPage('home', this)">
+    <span class="nav-icon">🏠</span>
+  </div>
+  <div class="nav-item" onclick="showPage('stamps', this)">
+    <span class="nav-icon">🏆</span>
+  </div>
+</nav>
+
 <!-- メインコンテンツ -->
 <main>
 
@@ -757,18 +761,6 @@
   </div><!-- /page-stamps -->
 
 </main>
-
-<!-- ボトムナビ -->
-<nav class="bottom-nav">
-  <div class="nav-item active" onclick="showPage('home', this)">
-    <span class="nav-icon">🏠</span>
-    <span class="nav-label">ホーム</span>
-  </div>
-  <div class="nav-item" onclick="showPage('stamps', this)">
-    <span class="nav-icon">🏆</span>
-    <span class="nav-label">スタンプ帳</span>
-  </div>
-</nav>
 
 <!-- トースト -->
 <div class="toast" id="toast"></div>
@@ -850,6 +842,24 @@
       </div>
     </div>
     <button class="submit-btn" id="animalConfirmBtn" onclick="confirmAnimal()" disabled>この子に決めた！🥚</button>
+  </div>
+</div>
+
+<!-- ===== 名前入力モーダル ===== -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✨ 名前をつけよう！</div>
+    <div id="nameModalChar" style="font-size:64px;text-align:center;margin-bottom:16px;"></div>
+    <label>この子の名前は？</label>
+    <input type="text" id="nameInput" maxlength="12"
+      placeholder="名前を入力してね"
+      style="width:100%;background:var(--light);border:2px solid transparent;border-radius:var(--radius-md);padding:14px;font-size:16px;font-family:'Zen Maru Gothic',sans-serif;color:var(--dark);outline:none;transition:border-color 0.2s;margin-bottom:8px;"
+      oninput="document.getElementById('nameConfirmBtn').disabled = !this.value.trim();"
+      onfocus="this.style.borderColor='var(--coral)';this.style.background='white';"
+      onblur="this.style.borderColor='transparent';this.style.background='var(--light)';"
+    >
+    <button class="submit-btn" id="nameConfirmBtn" onclick="confirmName()" disabled style="margin-top:8px;">決定！🐾</button>
   </div>
 </div>
 
@@ -1196,8 +1206,8 @@ function updateUI() {
 
   // キャラ表示
   document.getElementById('characterSvg').innerHTML = getCharacterHTML(data.animalType, stage);
-  document.getElementById('characterName').textContent =
-    `${ANIMAL_EMOJI[data.animalType]} ${ANIMAL_NAMES[data.animalType]}（${stageInfo.name}）`;
+  const displayName = data.charName || ANIMAL_NAMES[data.animalType];
+  document.getElementById('characterName').textContent = `${ANIMAL_EMOJI[data.animalType]} ${displayName}`;
 
   // スコアバー
   document.getElementById('currentScore').textContent = score;
@@ -1237,9 +1247,15 @@ function renderLogs(logs) {
     return;
   }
   const recent = [...logs].reverse().slice(0, 5);
-  el.innerHTML = recent.map(log => `
+  el.innerHTML = recent.map(log => {
+    const at = log.animalType;
+    const st = log.stage ?? 0;
+    const charImg = at
+      ? `<img src="${at}_stage${st}.webp" style="width:40px;height:40px;object-fit:contain;mix-blend-mode:multiply;" onerror="this.style.display='none';">`
+      : (log.animal || '🥚');
+    return `
     <div class="log-item">
-      <div class="log-animal">${log.animal || '🥚'}</div>
+      <div class="log-animal">${charImg}</div>
       <div class="log-content">
         <div class="log-text">${log.text}</div>
         <div class="log-meta">
@@ -1249,7 +1265,8 @@ function renderLogs(logs) {
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // ===== ケアアクション =====
@@ -1326,10 +1343,24 @@ function selectAnimal(type, el) {
 
 function confirmAnimal() {
   if (!selectedAnimal) return;
-  const data = initData(selectedAnimal);
   closeModal('animalModal');
+  // 名前入力モーダルを開く
+  const charImg = document.getElementById('nameModalChar');
+  charImg.innerHTML = `<img src="${selectedAnimal}_stage0.webp" style="width:80px;height:80px;object-fit:contain;mix-blend-mode:multiply;" onerror="this.outerHTML='${ANIMAL_EMOJI[selectedAnimal]}';">`;
+  document.getElementById('nameInput').value = '';
+  document.getElementById('nameConfirmBtn').disabled = true;
+  openModal('nameModal');
+}
+
+function confirmName() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return;
+  const data = initData(selectedAnimal);
+  data.charName = name;
+  saveData(data);
+  closeModal('nameModal');
   updateUI();
-  showToast(`${ANIMAL_NAMES[selectedAnimal]}のたまごが生まれたよ！🥚`);
+  showToast(`${name}のたまごが生まれたよ！🥚`);
 }
 
 // ===== 記録モーダル =====
@@ -1374,7 +1405,8 @@ function submitRecord() {
     tools: [...selectedTools],
     points,
     date: today,
-    animal: ANIMAL_EMOJI[data.animalType],
+    animalType: data.animalType,
+    stage: week.stage,
   };
   if (!week.logs) week.logs = [];
   week.logs.push(log);
@@ -1405,7 +1437,8 @@ function submitRecord() {
 
   setTimeout(() => {
     const comment = getRandom(PHRASES.afterRecord[data.animalType]);
-    document.getElementById('commentChar').textContent = ANIMAL_EMOJI[data.animalType];
+    const cEl = document.getElementById('commentChar');
+    cEl.innerHTML = `<img src="${data.animalType}_stage${week.stage}.webp" style="width:80px;height:80px;object-fit:contain;mix-blend-mode:multiply;" onerror="this.outerHTML='${ANIMAL_EMOJI[data.animalType]}';">`;
     document.getElementById('commentText').textContent = comment;
     document.getElementById('commentPt').textContent = `+${points}pt`;
     openModal('commentModal');
@@ -1535,14 +1568,15 @@ document.addEventListener('keydown', (e) => {
 function debugNextDay() {
   const data = loadData();
   if (!data) return;
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toLocaleDateString('sv-SE');
-  data.lastLoginDate = tomorrowStr;
+  if (!data.weekStartDate) data.weekStartDate = getTodayStr();
+  const d = new Date(data.weekStartDate);
+  d.setDate(d.getDate() - 1);
+  data.weekStartDate = d.toLocaleDateString('sv-SE');
   const week = getCurrentWeek(data);
   week.lastFeedDate = '';
   week.lastCleanDate = '';
   saveData(data);
+  checkWeeklyReset();
   updateUI();
   showToast('🧪 1日進めました');
 }
