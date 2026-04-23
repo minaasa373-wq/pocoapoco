@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>仕様書 v6.0｜ぽこあぽこ（現状実装版）</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F0;
+    --surface: #FFFFFF;
+    --accent: #6BBFB5;
+    --accent-light: #7CCBBF;
+    --text: #333333;
+    --text-muted: #888888;
+    --border: #E8E8E3;
+    --tag-bg: #F0F0EB;
+    --coral: #FF7B6B;
+    --peach: #FFB347;
+    --shadow: 0 4px 20px rgba(0,0,0,0.07);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%); padding: 48px 24px 40px; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .header-emoji { font-size: 56px; display: block; margin-bottom: 12px; animation: bounce 2s ease-in-out infinite; position: relative; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  header h1 { font-size: 28px; font-weight: 900; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
+  header .subtitle { color: rgba(255,255,255,0.85); font-size: 13px; margin-top: 6px; position: relative; }
+  .badge { display: inline-block; background: rgba(255,255,255,0.25); border-radius: 20px; padding: 4px 14px; font-size: 12px; color: white; margin-top: 10px; backdrop-filter: blur(4px); position: relative; }
+
+  nav { background: white; border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; overflow-x: auto; gap: 4px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  nav a { display: block; padding: 13px 14px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-decoration: none; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  main { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  section { margin-bottom: 52px; }
+
+  h2 { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  h2 .icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  h2 .line { flex: 1; height: 1px; background: var(--border); }
+  h3 { font-size: 13px; font-weight: 700; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  p, li { font-size: 14px; line-height: 1.8; color: #555; }
+  li { margin-left: 20px; margin-bottom: 4px; }
+
+  .card { background: white; border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); margin-bottom: 14px; border: 1px solid var(--border); }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .card-mini { background: white; border-radius: 12px; padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
+  .card-mini .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+  .card-mini strong { display: block; font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .card-mini p { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #F8F8F5; color: var(--text-muted); padding: 10px 14px; text-align: left; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+
+  .highlight { border-radius: 12px; padding: 16px 18px; margin: 12px 0; font-size: 13px; line-height: 1.7; }
+  .highlight-green { background: #E8F8F6; border-left: 3px solid var(--accent); color: #2A7A72; }
+  .highlight-yellow { background: #FFF8E8; border-left: 3px solid var(--peach); color: #8A6020; }
+  .highlight-red { background: #FFF0EE; border-left: 3px solid var(--coral); color: #8A3020; }
+  .highlight-gray { background: var(--tag-bg); border-left: 3px solid var(--border); color: var(--text-muted); }
+
+  .spec-row { display: flex; border-bottom: 1px solid var(--border); padding: 11px 0; gap: 16px; font-size: 13px; }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-label { font-weight: 800; color: var(--text); width: 150px; flex-shrink: 0; }
+  .spec-value { color: #555; flex: 1; line-height: 1.7; }
+
+  .stages { display: flex; align-items: center; overflow-x: auto; padding: 8px 0; gap: 0; }
+  .stage { background: white; border-radius: 12px; padding: 14px 10px; text-align: center; min-width: 110px; box-shadow: var(--shadow); border: 1px solid var(--border); flex-shrink: 0; }
+  .stage .s-emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+  .stage .s-name { font-size: 11px; font-weight: 800; color: var(--text); }
+  .stage .s-pt { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .stage-arrow { font-size: 18px; color: var(--border); padding: 0 4px; flex-shrink: 0; }
+
+  .chara-card { background: white; border-radius: 14px; padding: 18px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 10px; }
+  .chara-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .chara-icon { font-size: 36px; }
+  .chara-header-info strong { display: block; font-size: 15px; font-weight: 900; color: var(--text); }
+  .chara-header-info span { font-size: 12px; color: var(--text-muted); }
+  .chara-tag { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; margin: 2px; background: var(--tag-bg); color: var(--text-muted); }
+
+  .screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .screen-box { background: #2A2A3A; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .screen-title { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 700; padding: 8px 12px; }
+  .screen-body { padding: 10px; }
+  .screen-elem { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; font-size: 11px; color: rgba(255,255,255,0.8); }
+  .screen-elem.accent { background: var(--accent); color: white; }
+  .screen-elem.warm { background: var(--coral); color: white; }
+
+  .done-tag { display: inline-block; background: #E8F8F6; color: var(--accent); font-size: 10px; font-weight: 800; padding: 1px 8px; border-radius: 8px; margin-left: 6px; vertical-align: middle; border: 1px solid var(--accent-light); }
+  .pending-tag { display: inline-block; background: #FFF8E8; color: #C08030; font-size: 10px; font-weight: 800; padding: 1px 8px; border-radius: 8px; margin-left: 6px; vertical-align: middle; border: 1px solid #FFD080; }
+
+  footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 48px; }
+  @media(max-width:600px){ header h1{font-size:22px} }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="header-emoji">🥚</span>
+  <h1>ぽこあぽこ</h1>
+  <p class="subtitle">poco a poco — 少しずつ、だんだん｜自己肯定感育成アプリ</p>
+  <br>
+  <span class="badge">📋 現状実装仕様書 v6.0｜ClaudeDesign向け</span>
+</header>
+
+<nav>
+  <a href="#overview">📌 概要</a>
+  <a href="#character">🐾 キャラクター</a>
+  <a href="#growth">🥚 成長設計</a>
+  <a href="#score">🎮 スコア</a>
+  <a href="#features">⚙️ 機能</a>
+  <a href="#screens">📱 画面</a>
+  <a href="#data">🗄️ データ</a>
+  <a href="#phrases">💬 定型文</a>
+  <a href="#tech">🛠️ 技術</a>
+  <a href="#next">🔧 次の実装</a>
+</nav>
+
+<main>
+
+  <!-- 概要 -->
+  <section id="overview">
+    <h2><span class="icon" style="background:#E8F8F6">📌</span> アプリ概要 <span class="line"></span></h2>
+    <div class="card">
+      <div class="spec-row"><span class="spec-label">アプリ名</span><span class="spec-value"><strong>ぽこあぽこ</strong>（poco a poco）― イタリア語・音楽用語で「少しずつ、だんだん」</span></div>
+      <div class="spec-row"><span class="spec-label">目的</span><span class="spec-value">AIの活用体験だけでなく、日常の小さな「できた！」を記録して獣人キャラクターを育てる。自己肯定感を育む。</span></div>
+      <div class="spec-row"><span class="spec-label">ターゲット</span><span class="spec-value">DXコース受講者（約150名）。課題の成果物デモ兼、希望受講者への配布ツール。</span></div>
+      <div class="spec-row"><span class="spec-label">プラットフォーム</span><span class="spec-value">Webアプリ（単一HTMLファイル）PC・スマホ両対応</span></div>
+      <div class="spec-row"><span class="spec-label">データ保存</span><span class="spec-value">localStorage（ログイン不要・端末内に保存）</span></div>
+      <div class="spec-row"><span class="spec-label">外部API</span><span class="spec-value">不使用（定型文バンクで代替）</span></div>
+      <div class="spec-row"><span class="spec-label">ホスティング</span><span class="spec-value">Vercel または Netlify Drop</span></div>
+      <div class="spec-row"><span class="spec-label">現在のカラー</span><span class="spec-value">パステルコーラル系（Claude Codeで Ochibaカラーに変更予定）</span></div>
+    </div>
+
+    <h3>設計原則</h3>
+    <div class="card-grid">
+      <div class="card-mini"><span class="emoji">🚫</span><strong>競争しない</strong><p>他者とスコアを競わない。自分だけの成長を愛でる。</p></div>
+      <div class="card-mini"><span class="emoji">😌</span><strong>責めない</strong><p>さぼった日もキャラは怒らない・空腹にならない。</p></div>
+      <div class="card-mini"><span class="emoji">🎁</span><strong>サプライズ成長</strong><p>次の姿は育ててから初めてわかる。</p></div>
+      <div class="card-mini"><span class="emoji">📸</span><strong>記念日になる</strong><p>成長の瞬間はスクショタイムで保存できる。</p></div>
+    </div>
+  </section>
+
+  <!-- キャラクター -->
+  <section id="character">
+    <h2><span class="icon" style="background:#F0F0EB">🐾</span> キャラクター設計 <span class="line"></span></h2>
+
+    <div class="highlight highlight-yellow">
+      🖼️ <strong>画像について：</strong>各キャラ×4ステージの透過PNG（WebP推奨）を用意済み。白背景のままimgタグで表示し、<code>mix-blend-mode: multiply</code>でアプリ背景と馴染ませる。現在はSVG絵文字で代替表示中。
+    </div>
+
+    <div class="chara-card">
+      <div class="chara-header"><div class="chara-icon">🐺</div><div class="chara-header-info"><strong>狼獣人</strong><span>♂ 男性</span></div></div>
+      <div><span class="chara-tag">クール</span><span class="chara-tag">無口</span><span class="chara-tag">ツンデレ</span><span class="chara-tag">実は優しい</span></div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">台詞：「…悪くない」「まあ、よくやったな」など寡黙でぶっきらぼうだが温かみがある。</p>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+        幼児期：おむつのみ ／ 少年期：サロペット ／ 青年期：革ジャン＋ダメージジーンズ ／ 成年期：ロングコート＋サングラス＋シルバーアクセ
+      </div>
+    </div>
+
+    <div class="chara-card">
+      <div class="chara-header"><div class="chara-icon">🦊</div><div class="chara-header-info"><strong>狐獣人</strong><span>♀ 女性</span></div></div>
+      <div><span class="chara-tag">明るい</span><span class="chara-tag">元気</span><span class="chara-tag">おしゃれ</span><span class="chara-tag">ポジティブ</span></div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">台詞：「わあ！すごい！」「さすがだね！」など明るくポジティブ。</p>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+        幼児期：おむつのみ ／ 少女期：フレアスカート ／ 青年期：カジュアルワンピース ／ 成年期：パンツスーツ
+      </div>
+    </div>
+
+    <div class="chara-card">
+      <div class="chara-header"><div class="chara-icon">🐉</div><div class="chara-header-info"><strong>ドラゴン獣人</strong><span>中性</span></div></div>
+      <div><span class="chara-tag">神秘的</span><span class="chara-tag">マイペース</span><span class="chara-tag">古風な口調</span><span class="chara-tag">壮大</span></div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">台詞：「うむ、よき歩みじゃ」「その積み重ねが力となる」など古風・神秘的。白ウロコ×金アクセント。</p>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+        幼児期：クリーム色おむつ ／ 少年少女期：淡いグレーシャツ ／ 青年期：黒ロールネック ／ 成年期：白羽織風ロングコート（和洋折衷）
+      </div>
+    </div>
+
+    <div class="chara-card">
+      <div class="chara-header"><div class="chara-icon">🐦</div><div class="chara-header-info"><strong>セキセイインコ獣人</strong><span>♂ 男性</span></div></div>
+      <div><span class="chara-tag">マイペース</span><span class="chara-tag">のんびり</span><span class="chara-tag">ゆったり</span></div>
+      <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">台詞：「…ふわ〜、すごいねぇ」「いいじゃん、いいじゃん〜」などのほほん系。水色×白の羽。羽が腕。対趾足。</p>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+        幼児期：クリーム色おむつ ／ 少年期：半ズボン＋サスペンダー ／ 青年期：ノースリーブ開襟シャツ（袖なし）／ 成年期：ノースリーブリゾートベスト＋リネンパンツ＋麦わら帽子
+      </div>
+    </div>
+
+    <h3>画像ファイル命名規則</h3>
+    <div class="card">
+      <table>
+        <tr><th>キャラ</th><th>Stage 0（幼児期）</th><th>Stage 1（少年期）</th><th>Stage 2（青年期）</th><th>Stage 3（成年期）</th></tr>
+        <tr><td>🐺 狼</td><td>wolf_stage0.webp</td><td>wolf_stage1.webp</td><td>wolf_stage2.webp</td><td>wolf_stage3.webp</td></tr>
+        <tr><td>🦊 狐</td><td>fox_stage0.webp</td><td>fox_stage1.webp</td><td>fox_stage2.webp</td><td>fox_stage3.webp</td></tr>
+        <tr><td>🐉 ドラゴン</td><td>dragon_stage0.webp</td><td>dragon_stage1.webp</td><td>dragon_stage2.webp</td><td>dragon_stage3.webp</td></tr>
+        <tr><td>🐦 インコ</td><td>budgie_stage0.webp</td><td>budgie_stage1.webp</td><td>budgie_stage2.webp</td><td>budgie_stage3.webp</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 成長設計 -->
+  <section id="growth">
+    <h2><span class="icon" style="background:#FFF8E8">🥚</span> 成長設計 <span class="line"></span></h2>
+
+    <div class="highlight highlight-red">
+      ⚠️ <strong>次のステージの姿は事前に公開しない（サプライズ演出）</strong><br>
+      ⚠️ <strong>1日の成長は最大1ステージまで（何ptを稼いでも1日1段階のみ）</strong>
+    </div>
+
+    <div class="card" style="overflow-x:auto; margin-top:14px">
+      <div class="stages">
+        <div class="stage"><span class="s-emoji">🥚</span><span class="s-name">幼児期</span><span class="s-pt">0〜99pt</span></div>
+        <span class="stage-arrow">→</span>
+        <div class="stage"><span class="s-emoji">👶</span><span class="s-name">少年期</span><span class="s-pt">100〜249pt</span></div>
+        <span class="stage-arrow">→</span>
+        <div class="stage"><span class="s-emoji">🧒</span><span class="s-name">青年期</span><span class="s-pt">250〜449pt</span></div>
+        <span class="stage-arrow">→</span>
+        <div class="stage"><span class="s-emoji">✨</span><span class="s-name">成年期</span><span class="s-pt">450pt〜</span></div>
+        <span class="stage-arrow">→</span>
+        <div class="stage"><span class="s-emoji">🎓</span><span class="s-name">卒業</span><span class="s-pt">週末リセット</span></div>
+      </div>
+    </div>
+
+    <h3>スクショタイム（成長演出後に自動発動）</h3>
+    <div class="card">
+      <table>
+        <tr><th>ステージ</th><th>ポーズ内容</th></tr>
+        <tr><td>少年期</td><td>たまごから顔を出してにこっとするポーズ（1種類）</td></tr>
+        <tr><td>青年期</td><td>Vサインするポーズ（1種類）</td></tr>
+        <tr><td>成年期</td><td>キラキラ背景でランダム3種類のポーズ</td></tr>
+        <tr><td>卒業</td><td>卒業証書を持って笑顔のポーズ（1種類）</td></tr>
+      </table>
+    </div>
+
+    <h3>週リセット→卒業ギャラリー</h3>
+    <div class="highlight highlight-green">
+      週末（日曜深夜）に自動リセット。前週のキャラはギャラリーに永久保存。週リセット時にキャラ種別を再選択できる。月曜朝に「先週のレポートが届いてるよ📬」バナーを強制表示（確認するまで消えない）。
+    </div>
+  </section>
+
+  <!-- スコア設計 -->
+  <section id="score">
+    <h2><span class="icon" style="background:#FFF0EE">🎮</span> スコア設計（確定版） <span class="line"></span></h2>
+    <div class="card">
+      <table>
+        <tr><th>アクション</th><th>ポイント</th><th>備考</th></tr>
+        <tr><td>📝 今日できたことを記録</td><td><strong>+15pt</strong></td><td>何件目でも固定。AI以外の日常記録も同等。</td></tr>
+        <tr><td>🤖 AIツールを使った（チップ選択）</td><td><strong>+5pt</strong></td><td>おまけボーナス。ツール名問わず同額。</td></tr>
+        <tr><td>🍖 ご飯をあげる</td><td><strong>+5pt</strong></td><td>1日1回まで。2回目以降もご飯は食べてくれる。</td></tr>
+        <tr><td>🧹 お部屋の掃除をする</td><td><strong>+5pt</strong></td><td>1日1回まで。</td></tr>
+        <tr><td>🔥 3日連続ログイン</td><td><strong>+30pt</strong></td><td>達成日にボーナス加算。</td></tr>
+        <tr><td>🌟 週次振り返りを記入</td><td><strong>+25pt</strong></td><td>週1回のみ。</td></tr>
+      </table>
+    </div>
+    <div class="highlight highlight-yellow">
+      💡 <strong>1日最大獲得pt目安：</strong>記録15pt + AIボーナス5pt + ご飯5pt + 掃除5pt + 連続ボーナス30pt = 最大<strong>60pt/日</strong><br>
+      最終ステージ閾値（450pt）÷ 60pt ≒ 約8日。週末ギリギリまで成長の余地が残る設計。
+    </div>
+  </section>
+
+  <!-- 機能一覧 -->
+  <section id="features">
+    <h2><span class="icon" style="background:#E8F8F6">⚙️</span> 実装済み機能一覧 <span class="line"></span></h2>
+    <div class="card">
+      <table>
+        <tr><th>機能</th><th>詳細</th></tr>
+        <tr><td>キャラ選択</td><td>4種類（狼・狐・ドラゴン・インコ）から選択。週リセット時に再選択可。</td></tr>
+        <tr><td>成長ステージ管理</td><td>4段階。1日1段階制限あり。サプライズ演出（次の姿を事前非公開）。</td></tr>
+        <tr><td>記録入力</td><td>テキスト入力＋AIツール選択（任意・チップ式）。送信後に定型文コメント表示。</td></tr>
+        <tr><td>スコア加算</td><td>記録・デイリーアクション・連続ログインに応じて加算。フローティングpt演出あり。</td></tr>
+        <tr><td>デイリーアクション（ご飯）</td><td>ステージ別メニュー解放（全12種）。コンプリート機能あり。1日1回+5pt。</td></tr>
+        <tr><td>デイリーアクション（掃除）</td><td>部屋がきれいになるビジュアル変化。24時間で徐々に元に戻る。1日1回+5pt。</td></tr>
+        <tr><td>スタンプ帳</td><td>日付変わり検知で1日1回スタンプ。曜日別・連続ログイン別デザイン。月間カレンダー表示。</td></tr>
+        <tr><td>仮想タイムライン</td><td>30件の固定投稿を日付シードでランダム5件表示。いいね❤演出のみ（データ保存なし）。</td></tr>
+        <tr><td>週次レポート</td><td>日別スコアバーグラフ・キャラからの手紙（定型文）・週次振り返り入力（+25pt）。</td></tr>
+        <tr><td>スクショタイム</td><td>成長演出後に自動発動。特別フレームでキャラがポーズ。</td></tr>
+        <tr><td>卒業ギャラリー</td><td>週リセット時に前週キャラを自動保存。歴代キャラ一覧表示。</td></tr>
+        <tr><td>リセット機能</td><td>確認ダイアログ付き。全データ削除→キャラ選択に戻る。</td></tr>
+        <tr><td>localStorageデータ保存</td><td>ログイン不要。ブラウザ内にデータを保持。</td></tr>
+      </table>
+    </div>
+
+    <h3>ご飯メニュー（ステージ別解放）</h3>
+    <div class="card">
+      <table>
+        <tr><th>ステージ</th><th>解放メニュー</th></tr>
+        <tr><td>幼児期（Stage 0）</td><td>🍼 ミルク、🍞 パン</td></tr>
+        <tr><td>少年期（Stage 1）</td><td>🍳 目玉焼き、🍙 おにぎり、🥕 にんじん</td></tr>
+        <tr><td>青年期（Stage 2）</td><td>🍜 ラーメン、🍣 お寿司、🍰 ケーキ</td></tr>
+        <tr><td>成年期（Stage 3）</td><td>🦞 ごちそう、🍱 豪華弁当、🎂 誕生日ケーキ、🍕 ピザ</td></tr>
+      </table>
+    </div>
+
+    <h3>スタンプ種別</h3>
+    <div class="card">
+      <table>
+        <tr><th>スタンプ</th><th>出現条件</th></tr>
+        <tr><td>⭐🌸🍀🌙☀️🎵🌟（7種類）</td><td>通常ログイン（曜日によって変わる）</td></tr>
+        <tr><td>🔥 炎スタンプ</td><td>3日連続ログイン達成日</td></tr>
+        <tr><td>🌈 虹スタンプ</td><td>7日連続ログイン達成日</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 画面構成 -->
+  <section id="screens">
+    <h2><span class="icon" style="background:#F0F0EB">📱</span> 画面構成 <span class="line"></span></h2>
+    <div class="screen-grid">
+      <div class="screen-box">
+        <div class="screen-title">① ホーム画面</div>
+        <div class="screen-body">
+          <div class="screen-elem warm">キャラ表示エリア</div>
+          <div class="screen-elem">今日のひとこと（定型文）</div>
+          <div class="screen-elem">週間スコアバー</div>
+          <div class="screen-elem">🍖ご飯 🧹掃除ボタン</div>
+          <div class="screen-elem accent">今日できたことを記録</div>
+          <div class="screen-elem">🌿みんなの今日（タイムライン）</div>
+        </div>
+      </div>
+      <div class="screen-box">
+        <div class="screen-title">② 記録入力</div>
+        <div class="screen-body">
+          <div class="screen-elem">テキストエリア（500文字）</div>
+          <div class="screen-elem">AIツール選択チップ</div>
+          <div class="screen-elem accent">キャラに届ける🐾</div>
+          <div class="screen-elem">定型文コメント表示</div>
+        </div>
+      </div>
+      <div class="screen-box">
+        <div class="screen-title">③ スタンプ帳</div>
+        <div class="screen-body">
+          <div class="screen-elem">月間カレンダー</div>
+          <div class="screen-elem">⭐🔥🌈 日替わりスタンプ</div>
+          <div class="screen-elem accent">今月○日ログイン！</div>
+          <div class="screen-elem">連続ログイン日数</div>
+        </div>
+      </div>
+      <div class="screen-box">
+        <div class="screen-title">④ 週次レポート</div>
+        <div class="screen-body">
+          <div class="screen-elem">日別スコアバーグラフ</div>
+          <div class="screen-elem">キャラからの手紙</div>
+          <div class="screen-elem accent">週次振り返り（+25pt）</div>
+        </div>
+      </div>
+      <div class="screen-box">
+        <div class="screen-title">⑤ 卒業ギャラリー</div>
+        <div class="screen-body">
+          <div class="screen-elem">過去キャラ一覧カード</div>
+          <div class="screen-elem">週番号・最終ステージ</div>
+          <div class="screen-elem accent">○匹育てたよ！🎓</div>
+        </div>
+      </div>
+      <div class="screen-box">
+        <div class="screen-title">⑥ キャラ選択（初回）</div>
+        <div class="screen-body">
+          <div class="screen-elem">4キャラから選択</div>
+          <div class="screen-elem">（幼児期画像表示予定）</div>
+          <div class="screen-elem accent">この子に決めた！🥚</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:20px">ボトムナビゲーション</h3>
+    <div class="highlight highlight-gray">
+      🏠 ホーム ／ 📅 スタンプ帳 ／ 📊 レポート ／ 🎓 ギャラリー
+    </div>
+  </section>
+
+  <!-- データ設計 -->
+  <section id="data">
+    <h2><span class="icon" style="background:#FFF8E8">🗄️</span> データ設計（localStorage） <span class="line"></span></h2>
+    <div class="card">
+      <table>
+        <tr><th>キー</th><th>内容</th></tr>
+        <tr><td><code>pocoapoco</code></td><td>全データを1つのJSONオブジェクトで保存</td></tr>
+      </table>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <pre style="font-size:12px;color:#555;line-height:1.8;overflow-x:auto">{
+  animalType: string,        // "wolf" | "fox" | "dragon" | "budgie"
+  stamps: {                  // スタンプ帳
+    "2026-04-17": "⭐",
+    "2026-04-18": "🔥",
+  },
+  lastLoginDate: string,     // "2026-04-17"（1日1スタンプ制御用）
+  loginStreak: number,       // 連続ログイン日数
+  currentWeekId: string,     // "2026-W17"
+  gallery: [                 // 卒業キャラ一覧
+    { weekId, animalType, stage, score }
+  ],
+  reflections: {             // 週次振り返り
+    "2026-W17": "今週は..."
+  },
+  weeks: {
+    "2026-W17": {
+      score: number,
+      stage: number,         // 0〜3
+      lastStageUpDate: string,
+      lastFeedDate: string,
+      lastCleanDate: string,
+      logs: [
+        { text, tools[], points, date, animal, type }
+      ]
+    }
+  }
+}</pre>
+    </div>
+  </section>
+
+  <!-- 定型文バンク -->
+  <section id="phrases">
+    <h2><span class="icon" style="background:#E8F8F6">💬</span> 定型文バンク <span class="line"></span></h2>
+    <div class="highlight highlight-green">
+      外部API不使用。全台詞をJavaScriptの配列としてフロントエンドに内蔵。各カテゴリ20種類以上。キャラ種別ごとに文体を変える。
+    </div>
+    <div class="card" style="margin-top:14px">
+      <table>
+        <tr><th>カテゴリ</th><th>🐺 狼</th><th>🦊 狐</th><th>🐉 ドラゴン</th><th>🐦 インコ</th></tr>
+        <tr><td>記録後コメント</td><td>「…悪くない」</td><td>「わあ！すごい！」</td><td>「うむ、よき歩みじゃ」</td><td>「いいじゃん〜」</td></tr>
+        <tr><td>成長時メッセージ</td><td>「…少し、大きくなったな」</td><td>「やった！新しい姿！」</td><td>「我、新たな力を得た」</td><td>「ふわ〜、変わったねぇ」</td></tr>
+        <tr><td>今日のひとこと</td><td>「今日も…来たか」</td><td>「今日もいい日にしよ！」</td><td>「小さき一歩を踏み出すのじゃ」</td><td>「ふわ〜、今日もよろしく」</td></tr>
+        <tr><td>ご飯リアクション</td><td>「…うまい」</td><td>「やった！おいしい！」</td><td>「なかなかの味じゃ」</td><td>「もぐもぐ…うまいねぇ」</td></tr>
+        <tr><td>掃除リアクション</td><td>「…きれいになったな」</td><td>「わあ！ありがとう！」</td><td>「うむ、清々しいのじゃ」</td><td>「すっきり〜、ありがと」</td></tr>
+      </table>
+    </div>
+
+    <h3>仮想タイムライン投稿比率（30件内蔵）</h3>
+    <div class="card">
+      <table>
+        <tr><th>カテゴリ</th><th>比率</th><th>例</th></tr>
+        <tr><td>🌱 日常系</td><td>40%</td><td>「今日は早起きできた☀️」「苦手な人に挨拶できた」</td></tr>
+        <tr><td>💼 仕事系（AI以外）</td><td>30%</td><td>「長かった資料がやっと完成した」「会議で発言できた」</td></tr>
+        <tr><td>🤖 AI活用系</td><td>30%</td><td>「プロンプトを工夫したら精度が上がった」</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 技術要件 -->
+  <section id="tech">
+    <h2><span class="icon" style="background:#F0F0EB">🛠️</span> 技術要件 <span class="line"></span></h2>
+    <div class="card">
+      <table>
+        <tr><th>項目</th><th>内容</th><th>備考</th></tr>
+        <tr><td>ファイル形式</td><td>単一HTMLファイル</td><td>外部JSファイルなし</td></tr>
+        <tr><td>フレームワーク</td><td>Vanilla HTML + CSS + JavaScript</td><td>ライブラリなし</td></tr>
+        <tr><td>フォント</td><td>Zen Maru Gothic（Google Fonts）</td><td></td></tr>
+        <tr><td>データ保存</td><td>localStorage</td><td>ログイン不要・端末内保存</td></tr>
+        <tr><td>外部API</td><td>不使用</td><td>定型文バンクで代替</td></tr>
+        <tr><td>キャラ画像</td><td>WebP（白背景・mix-blend-mode: multiplyで馴染ませる）</td><td>現在SVGで代替中</td></tr>
+        <tr><td>ホスティング</td><td>Vercel または Netlify Drop</td><td>HTMLをドロップするだけ</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 次の実装（ClaudeCode予定） -->
+  <section id="next">
+    <h2><span class="icon" style="background:#FFF0EE">🔧</span> Claude Code移行後の実装予定 <span class="line"></span></h2>
+    <div class="highlight highlight-gray">
+      以下はClaudeDesignには含めない。Claude Code移行後に実装する。
+    </div>
+    <div class="card" style="margin-top:14px">
+      <table>
+        <tr><th>内容</th><th>詳細</th></tr>
+        <tr><td>キャラ選択UIに画像表示</td><td>選択肢に幼児期の画像（wolf_stage0.webp等）を表示して選ばせる</td></tr>
+        <tr><td>キャラ画像の組み込み</td><td>SVGをimgタグに置き換え。フォールバック（絵文字）も実装。</td></tr>
+        <tr><td>キャラ別台詞の充実</td><td>4キャラそれぞれの個性に合った台詞を各20種類以上整備</td></tr>
+        <tr><td>キャラのリアクションアニメーション</td><td>記録・ご飯・なでる時にキャラ画像を揺らす・跳ねるCSSアニメーション</td></tr>
+        <tr><td>なでるコミュニケーション</td><td>キャラ表示エリアをタップで発動。ポイント加算なし。回数制限なし。</td></tr>
+        <tr><td>カラーテーマ変更</td><td>現パステルコーラル系 → Ochibaインスパイアの落ち着いたティール系に全面変更</td></tr>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>🥚 ぽこあぽこ（poco a poco）現状実装仕様書 v6.0｜ClaudeDesign向け</p>
+  <p style="margin-top:4px; color:#aaa">Claude Code移行後の実装予定は最終セクションを参照</p>
+</footer>
+
+</body>
+</html>
