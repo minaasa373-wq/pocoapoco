@@ -1205,7 +1205,7 @@ const ACHIEVEMENTS = [
   { id: 'stage_2',        stamp: '🌱', name: 'Stage 2達成' },
   { id: 'stage_3',        stamp: '✨', name: 'Stage 3達成' },
   { id: 'first_graduate', stamp: '🎓', name: 'はじめての卒業' },
-  { id: 'food_complete',  stamp: '🍽️', name: 'ご飯10回' },
+  { id: 'food_complete',  stamp: '🍚', name: 'はじめてのご飯' },
   { id: 'record_10',      stamp: '📖', name: '累計10回記録' },
   { id: 'record_30',      stamp: '📚', name: '累計30回記録' },
   { id: 'first_clean',    stamp: '🧹', name: 'はじめての掃除' },
@@ -1379,6 +1379,7 @@ function checkWeeklyReset() {
   const elapsed = Math.floor((today - start) / (1000 * 60 * 60 * 24));
   if (elapsed >= 7) {
     const week = getCurrentWeek(data);
+    addToGalleryIfNeeded(data, week);
     // 卒業感謝モーダルを表示してからキャラ選択へ
     showGraduationModal(data, week);
 
@@ -1571,66 +1572,40 @@ function renderLogs(logs) {
 }
 
 // ===== ケアアクション =====
-function feedCharacter() {
-  const data = loadData();
-  if (!data) return;
-  const week = getCurrentWeek(data);
-  const today = getTodayStr();
+function addToGalleryIfNeeded(data, week) {
+  if ((week.stage || 0) < 3) return;
+  if (!data.gallery) data.gallery = [];
+  if (data.gallery.some(g => g.startDate === data.weekStartDate)) return;
+  data.gallery.push({
+    animalType: data.animalType,
+    charName: data.charName || null,
+    stage: week.stage,
+    score: week.score,
+    startDate: data.weekStartDate,
+  });
+  checkAchievement('first_graduate', data);
+}
 
-  if (week.lastFeedDate === today) {
-    showSpeechBubble('もうご飯食べたよ〜🍚');
-    return;
-  }
-
-  week.lastFeedDate = today;
-  week.score += 5;
-
+function doCareAction(type) {
+  const data = loadData(); if (!data) return;
+  const week = getCurrentWeek(data); const today = getTodayStr();
+  const dateKey = type === 'feed' ? 'lastFeedDate' : 'lastCleanDate';
+  const busyMsg = type === 'feed' ? 'もうご飯食べたよ〜🍚' : 'もうきれいだよ〜✨';
+  if (week[dateKey] === today) { showSpeechBubble(busyMsg); return; }
+  week[dateKey] = today; week.score += 5;
   const newStage = getStage(week.score);
-  if (newStage > week.stage && week.lastStageUpDate !== today) {
-    week.stage = newStage;
-    week.lastStageUpDate = today;
-  }
-
-  saveData(data);
-  triggerCharAnimation('happy');
-  showFloatingPt('+5pt 🍚');
-  const feedMsg = getRandom((PHRASES.feedReaction[data.animalType]) || ['ありがとう！']);
-  showSpeechBubble(feedMsg);
-
-  // 実績チェック
-  checkAchievement('food_complete', data);
+  if (newStage > week.stage && week.lastStageUpDate !== today) { week.stage = newStage; week.lastStageUpDate = today; }
+  addToGalleryIfNeeded(data, week);
+  saveData(data); triggerCharAnimation('happy');
+  showFloatingPt(type === 'feed' ? '+5pt 🍚' : '+5pt ✨');
+  const phrases = type === 'feed' ? PHRASES.feedReaction[data.animalType] : PHRASES.cleanReaction[data.animalType];
+  showSpeechBubble(getRandom(phrases || ['ありがとう！']));
+  checkAchievement(type === 'feed' ? 'food_complete' : 'first_clean', data);
   updateUI();
 }
 
-function cleanCharacter() {
-  const data = loadData();
-  if (!data) return;
-  const week = getCurrentWeek(data);
-  const today = getTodayStr();
-
-  if (week.lastCleanDate === today) {
-    showSpeechBubble('もうきれいだよ〜✨');
-    return;
-  }
-
-  week.lastCleanDate = today;
-  week.score += 5;
-
-  const newStage = getStage(week.score);
-  if (newStage > week.stage && week.lastStageUpDate !== today) {
-    week.stage = newStage;
-    week.lastStageUpDate = today;
-  }
-
-  saveData(data);
-  triggerCharAnimation('happy');
-  showFloatingPt('+5pt ✨');
-  const cleanMsg = getRandom((PHRASES.cleanReaction[data.animalType]) || ['ありがとう！']);
-  showSpeechBubble(cleanMsg);
-
-  checkAchievement('first_clean', data);
-  updateUI();
-}
+function feedCharacter() { doCareAction('feed'); }
+function cleanCharacter() { doCareAction('clean'); }
 
 // ===== キャラ選択 =====
 let selectedAnimal = null;
@@ -1745,15 +1720,7 @@ function submitRecord() {
 
   // stage3到達でギャラリーに即追加
   if (stageUpped && newStage === 3) {
-    if (!data.gallery) data.gallery = [];
-    data.gallery.push({
-      animalType: data.animalType,
-      charName: data.charName || null,
-      stage: 3,
-      score: week.score,
-      startDate: data.weekStartDate,
-    });
-    checkAchievement('first_graduate', data);
+    addToGalleryIfNeeded(data, week);
   }
 
   saveData(data);
@@ -2016,6 +1983,9 @@ function debugNextStage() {
   if (currentStage >= STAGES.length - 1) { showToast('🧪 最高ステージです'); return; }
   week.score = STAGES[currentStage + 1].minPt;
   week.lastStageUpDate = '';
+  const newStage = getStage(week.score);
+  if (newStage > currentStage) { week.stage = newStage; }
+  addToGalleryIfNeeded(data, week);
   saveData(data);
   updateUI();
   showToast(`🧪 次のステージ閾値 (${week.score}pt) に設定`);
