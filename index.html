@@ -929,13 +929,9 @@
           <td style="padding:8px 4px;color:var(--dark);">🧹 部屋の掃除（1日1回）</td>
           <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+5pt</td>
         </tr>
-        <tr style="border-bottom:1px solid var(--light);">
+        <tr>
           <td style="padding:8px 4px;color:var(--dark);">📅 3日連続ログイン</td>
           <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+30pt</td>
-        </tr>
-        <tr>
-          <td style="padding:8px 4px;color:var(--dark);">📊 週次振り返りを記入</td>
-          <td style="padding:8px 4px;text-align:right;font-weight:900;color:var(--coral);">+25pt</td>
         </tr>
       </table>
     </div>
@@ -1007,6 +1003,20 @@
       <div class="stage-up-msg" id="stageUpMsg"></div>
     </div>
     <button class="submit-btn" onclick="closeModal('stageUpModal')" style="margin-top:20px">わあ！うれしい！🌟</button>
+  </div>
+</div>
+
+<!-- ===== 卒業感謝モーダル ===== -->
+<div class="modal-overlay" id="graduationModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:8px 0 16px;">
+      <div id="graduationChar" style="margin-bottom:12px;"></div>
+      <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:6px;">🎓 卒業</div>
+      <div id="graduationName" style="font-size:20px;font-weight:900;color:var(--dark);margin-bottom:16px;"></div>
+      <div id="graduationMsg" style="font-size:15px;line-height:1.8;color:var(--dark);background:var(--light);border-radius:var(--radius-md);padding:16px;margin-bottom:4px;"></div>
+    </div>
+    <button class="submit-btn" onclick="onGraduationClose()">ありがとう、またね！🌟</button>
   </div>
 </div>
 
@@ -1101,8 +1111,8 @@ const ACHIEVEMENT_LABELS = Object.fromEntries(
 const PHRASES = {
   afterRecord: {
     wolf: [
-      // stage0: たまご期（まだ眠っている）
-      ['…（たまご越しに、なにか届いてる）', '…（うごいた気がする）', '…（もうすぐ、出る）', '…（なんか嬉しい）', '…（ドクン）'],
+      // stage0: 幼児期（小さくておとなしい）
+      ['…（なんか、あたたかい）', '…（ドクン）', '…（なんか嬉しい）', '…（きみのこと、好きかも）', '…（ねむい）'],
       // stage1: 少年期（生まれたて、ツンデレが芽生え始め）
       ['…や、やるじゃないか', 'ま、まあ…えらいな', '…悪くない（小声）', 'べ、べつに嬉しくないし', '…う、うん。よくやった', 'もっとできるかもな、きみ', 'ふ、ふん。いいんじゃない'],
       // stage2: 青年期（ツンデレが板につき始める）
@@ -1111,8 +1121,8 @@ const PHRASES = {
       ['…悪くない', 'まあ、よくやったな', '黙って続けることが大事だ', '俺が認めてやる', '…うん。それでいい', '記録した。それだけで十分だ', 'そういうことの積み重ねが強さになる', '…お前、やるじゃないか'],
     ],
     fox: [
-      // stage0: たまご期
-      ['…（ぽかぽかして嬉しい！）', '…（なにか届いた！）', '…（もうすぐ会えるね！）', '…（ドキドキ！）', '…（絶対仲良くなるんだから！）'],
+      // stage0: 幼児期（無邪気で素直）
+      ['…（ぽかぽかして嬉しい！）', '…（なにか届いた！）', '…（ドキドキ！）', '…（絶対仲良くなるんだから！）', '…（きみ好き！）'],
       // stage1: 少年期（素直で無邪気）
       ['わあ！すごい！', 'えらいえらい〜！', 'もっと教えて！', '好き！大好き！', 'すごいじゃん！', 'やった〜！！', 'うれしい！'],
       // stage2: 青年期（元気で明るく、より表現豊か）
@@ -1121,8 +1131,8 @@ const PHRASES = {
       ['わあ！すごい！さすがだね！', 'えらい！えらすぎる！大好き！', 'それってめちゃくちゃいいじゃん！', '最高！もっと聞かせて！', 'きみと話してると元気出る！', 'また話してね！いつでも待ってるよ！', 'そういう気づきって大事だよね！'],
     ],
     dragon: [
-      // stage0: たまご期（殻の中の龍、古代のエネルギー）
-      ['…（殻の中で、力が満ちてゆく）', '…（そなたの気配が届いておる）', '…（もうすぐじゃ）', '…（力、感じるぞ）', '…（運命、始まりつつある）'],
+      // stage0: 幼児期（幼い龍、力が芽生え始める）
+      ['…（力が、目覚め始めておる）', '…（そなたの気配が届いておる）', '…（ぬくもりを感じるぞ）', '…（力、感じるぞ）', '…（運命、始まりつつある）'],
       // stage1: 少年期（幼い古風な口調）
       ['…ふむ、よくやったのじゃ', 'うむ…なかなかじゃ', 'よき歩みじゃ', '…我は見ておったぞ', 'えらいのじゃ', '続けるのじゃ'],
       // stage2: 青年期（格調が増してくる）
@@ -1131,8 +1141,8 @@ const PHRASES = {
       ['…小さき一歩が、大きな道となるのじゃ', '地道な積み重ね、それが真の力じゃ', 'ぽこあぽこ、それが正しき道じゃ', '焦らずともよい。着実に進むことが肝要じゃ', '小さきことを侮るなかれ。積み重なれば山となる', 'この記録が、やがて大きな力となるじゃろう'],
     ],
     budgie: [
-      // stage0: たまご期（ふわふわした眠り）
-      ['…（ふわ〜…）', '…（なんか、あったかい）', '…（もうすぐだよ〜）', '…（ねむい…でも嬉しい）', '…（うとうと〜）'],
+      // stage0: 幼児期（のほほんとした赤ちゃん）
+      ['…（ふわ〜…）', '…（なんか、あったかい）', '…（きもちいい〜）', '…（ねむい…でも嬉しい）', '…（うとうと〜）'],
       // stage1: 少年期（のんびりシンプル）
       ['いいじゃん〜', 'えらいね〜', 'ふわ〜、すごいね', 'ありがとね〜', 'やったね〜', 'のんびりね〜'],
       // stage2: 青年期（もう少し言葉が増える）
@@ -1148,9 +1158,15 @@ const PHRASES = {
     budgie: ['ふわ〜…きもちいい〜', 'えへ〜', 'ありがと〜', 'ぼーっとしちゃう〜', 'ふふ〜…', 'なでてくれるの〜？えへへ', 'きもちよくて眠くなっちゃう〜', '…ふわ〜', 'えへ〜、すき〜', 'ありがとねぇ〜'],
   },
   stageUp: {
-    1: ['うまれたよ！よろしくね！', 'あなたのおかげでうまれられたよ！', 'はじめまして！いっぱいよろしくね！'],
+    1: ['はじめまして！よろしくね！', 'きみに会えてよかった！', 'これからよろしくね！いっぱい話しかけてね！'],
     2: ['もっと大きくなったよ！えへへ', 'こんなに大きくなれた！うれしいな', 'みてみて！成長したよ！'],
     3: ['こんな姿になれたよ！あなたのおかげ！', 'ありがとう！最高の姿になれた！', 'こんな姿になれるなんて思ってなかった…ありがとう'],
+  },
+  farewell: {
+    wolf: ['…世話になった。次の奴も、ちゃんとやれよ', '…また会おう。強くな', '…悪くなかったぞ、この時間', '…忘れないからな'],
+    fox: ['ありがとう！また絶対会おうね！', '楽しかった〜！次の子も可愛がってね！', 'また会えると思ってる！バイバーイ！'],
+    dragon: ['うむ…よき時じゃった。次の者も頼むぞ', 'そなたとの歩み、誇りに思うぞ', '…この時間、我は忘れぬ'],
+    budgie: ['えへ〜、楽しかったよ〜。またね〜', 'ありがとね〜。ゆっくりね〜', 'またいつかね〜。のんびりね〜'],
   },
   feedReaction: {
     wolf: ['…うまい', '悪くない味だ', '…ありがとな', 'まあ、もらっておく'],
@@ -1253,16 +1269,9 @@ function checkWeeklyReset() {
   const today = new Date(getTodayStr());
   const elapsed = Math.floor((today - start) / (1000 * 60 * 60 * 24));
   if (elapsed >= 7) {
-    if (!data.gallery) data.gallery = [];
     const week = getCurrentWeek(data);
-    data.gallery.push({
-      animalType: data.animalType,
-      charName: data.charName || null,
-      stage: week.stage || 0,
-      score: week.score || 0,
-      startDate: data.weekStartDate,
-    });
-    if (week.stage >= 3) checkAchievement('first_graduate', data);
+    // 卒業感謝モーダルを表示してからキャラ選択へ
+    showGraduationModal(data, week);
 
     const newWeekId = getWeekId();
     data.weekStartDate = getTodayStr();
@@ -1274,10 +1283,26 @@ function checkWeeklyReset() {
     data.animalType = null;
     data.charName = null;
     saveData(data);
-    showToast('新しい週が始まったよ！新しい子を選んでね🎉');
     selectedAnimal = null;
-    openModal('animalModal');
   }
+}
+
+function showGraduationModal(data, week) {
+  const at = data.animalType;
+  const st = week.stage || 0;
+  const name = data.charName || ANIMAL_NAMES[at] || '';
+  document.getElementById('graduationChar').innerHTML =
+    `<img src="${at}_stage${st}.webp" style="width:120px;height:120px;object-fit:contain;mix-blend-mode:multiply;" onerror="this.outerHTML='<span style=font-size:80px>${ANIMAL_EMOJI[at]||'🥚'}</span>'">`;
+  document.getElementById('graduationName').textContent = name;
+  const msgs = PHRASES.farewell[at] || ['またね！'];
+  document.getElementById('graduationMsg').textContent = getRandom(msgs);
+  openModal('graduationModal');
+}
+
+function onGraduationClose() {
+  closeModal('graduationModal');
+  openModal('animalModal');
+  showToast('新しい子を選んでね🎉');
 }
 
 // ===== ステージ計算 =====
@@ -1358,7 +1383,11 @@ function updateUI() {
   const stageInfo = STAGES[stage];
   const today = getTodayStr();
 
-  // キャラ表示
+  // キャラ表示（ステージが上がるほど大きく）
+  const charSizes = [120, 145, 165, 190];
+  const charDisplay = document.getElementById('characterDisplay');
+  charDisplay.style.width = charSizes[stage] + 'px';
+  charDisplay.style.height = charSizes[stage] + 'px';
   document.getElementById('characterSvg').innerHTML = getCharacterHTML(data.animalType, stage);
   const displayName = data.charName || ANIMAL_NAMES[data.animalType];
   document.getElementById('characterName').textContent = `${ANIMAL_EMOJI[data.animalType]} ${displayName}`;
@@ -1518,12 +1547,31 @@ function confirmAnimal() {
 function confirmName() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) return;
-  const data = initData(selectedAnimal);
-  data.charName = name;
+
+  const existing = loadData();
+  let data;
+  if (existing && (existing.gallery || existing.achievements)) {
+    // リセット後 — gallery/achievements を引き継ぎ、週データだけ新規
+    const today = getTodayStr();
+    const weekId = getWeekId();
+    existing.animalType = selectedAnimal;
+    existing.charName = name;
+    existing.weekStartDate = today;
+    existing.currentWeekId = weekId;
+    if (!existing.weeks) existing.weeks = {};
+    existing.weeks[weekId] = {
+      score: 0, stage: 0, lastStageUpDate: '',
+      lastFeedDate: '', lastCleanDate: '', logs: [],
+    };
+    data = existing;
+  } else {
+    data = initData(selectedAnimal);
+    data.charName = name;
+  }
   saveData(data);
   closeModal('nameModal');
   updateUI();
-  showToast(`${name}だよ！よろしくね！🥚`);
+  showToast(`${name}だよ！よろしくね！`);
 }
 
 // ===== 記録モーダル =====
