@@ -345,6 +345,20 @@
     line-height: 1.8;
   }
   .no-logs .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .logs-expand-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 10px;
+    color: var(--mid);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .logs-expand-btn:hover { background: var(--border); }
 
   /* ===== MODAL ===== */
   .modal-overlay {
@@ -1542,14 +1556,15 @@ function buildAllLogs(data) {
   return logs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 }
 
-function renderLogs(logs) {
+function renderLogs(logs, showAll) {
   const el = document.getElementById('logsList');
   if (!logs || logs.length === 0) {
     el.innerHTML = `<div class="no-logs"><span class="emoji">🌿</span>今日はどんなことがあった？<br>教えてね</div>`;
     return;
   }
-  const recent = logs.slice(0, 20);
-  el.innerHTML = recent.map(log => {
+  const LIMIT = 10;
+  const visible = showAll ? logs : logs.slice(0, LIMIT);
+  const logHTML = visible.map(log => {
     const at = log.animalType;
     const st = log.stage ?? 0;
     const charImg = at
@@ -1569,19 +1584,31 @@ function renderLogs(logs) {
     </div>
   `;
   }).join('');
+  const moreBtn = !showAll && logs.length > LIMIT
+    ? `<button class="logs-expand-btn" onclick="expandLogs()">📖 過去の記録をもっと見る（あと${logs.length - LIMIT}件）</button>`
+    : '';
+  el.innerHTML = logHTML + moreBtn;
+}
+
+function expandLogs() {
+  const data = loadData();
+  if (!data) return;
+  renderLogs(buildAllLogs(data), true);
 }
 
 // ===== ケアアクション =====
 function addToGalleryIfNeeded(data, week) {
   if ((week.stage || 0) < 3) return;
   if (!data.gallery) data.gallery = [];
-  if (data.gallery.some(g => g.startDate === data.weekStartDate)) return;
+  const weekId = data.currentWeekId || getWeekId();
+  if (data.gallery.some(g => g.weekId === weekId || g.startDate === data.weekStartDate)) return;
   data.gallery.push({
     animalType: data.animalType,
     charName: data.charName || null,
     stage: week.stage,
     score: week.score,
     startDate: data.weekStartDate,
+    weekId,
   });
   checkAchievement('first_graduate', data);
 }
@@ -1634,26 +1661,22 @@ function confirmName() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) return;
 
+  const today = getTodayStr();
+  const weekId = getWeekId();
   const existing = loadData();
-  let data;
-  if (existing && (existing.gallery || existing.achievements)) {
-    // リセット後 — gallery/achievements を引き継ぎ、週データだけ新規
-    const today = getTodayStr();
-    const weekId = getWeekId();
-    existing.animalType = selectedAnimal;
-    existing.charName = name;
-    existing.weekStartDate = today;
-    existing.currentWeekId = weekId;
-    if (!existing.weeks) existing.weeks = {};
-    existing.weeks[weekId] = {
-      score: 0, stage: 0, lastStageUpDate: '',
-      lastFeedDate: '', lastCleanDate: '', logs: [],
-    };
-    data = existing;
-  } else {
-    data = initData(selectedAnimal);
-    data.charName = name;
+  // 既存データがあれば必ず引き継ぐ（logs・gallery・achievementsを保持）
+  const data = existing || {};
+  data.animalType = selectedAnimal;
+  data.charName = name;
+  data.weekStartDate = data.weekStartDate || today;
+  data.currentWeekId = weekId;
+  data.createdAt = data.createdAt || today;
+  if (!data.weeks) data.weeks = {};
+  if (!data.weeks[weekId]) {
+    data.weeks[weekId] = { score: 0, stage: 0, lastStageUpDate: '', lastFeedDate: '', lastCleanDate: '', logs: [] };
   }
+  if (!data.gallery) data.gallery = [];
+  if (!data.achievements) data.achievements = {};
   saveData(data);
   closeModal('nameModal');
   updateUI();
