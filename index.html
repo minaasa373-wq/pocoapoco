@@ -1715,8 +1715,7 @@ function submitRecord() {
 
   // ポイント計算
   let points = 15;
-  if (selectedTools.length > 0) points += 15;
-  if (selectedTools.length > 0 && !selectedTools.includes('その他')) points += 5;
+  if (selectedTools.length > 0) points += 5;
 
   // ログ追加
   const log = {
