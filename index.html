@@ -1714,8 +1714,7 @@ function submitRecord() {
   const today = getTodayStr();
 
   // ポイント計算
-  const todayLogs = (week.logs || []).filter(l => l.date === today);
-  let points = todayLogs.length === 0 ? 15 : 5;
+  let points = 15;
   if (selectedTools.length > 0) points += 15;
   if (selectedTools.length > 0 && !selectedTools.includes('その他')) points += 5;
 
